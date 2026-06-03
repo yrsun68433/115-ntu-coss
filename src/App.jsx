@@ -229,7 +229,7 @@ export default function App() {
                                 <button onMouseDown={e => { e.preventDefault(); commitNote() }} style={{ marginTop:4, fontSize:11.5, padding:'4px 13px', background:activeOriginal.color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer' }}>儲存備註</button>
                               </div>
                             ) : (
-                              <div onClick={() => setEditingNote({ monthId: activeMonth, itemId: item.id })} style={{ marginTop:7, padding:'5px 10px', background: item.note ? activeOriginal.accent : '#f7f5f0', borderRadius:4, cursor:'text', fontSize:11.5, lineHeight:1.55, color: item.note ? '#444' : '#bbb', fontStyle: item.note ? 'normal' : 'italic', borderLeft: item.note ? `3px solid ${activeOriginal.color}88` : '3px solid transparent', transition:'all 0.15s' }}>
+                              <div onClick={() => setEditingNote({ monthId: activeMonth, itemId: item.id })} style={{ marginTop:7, padding:'5px 10px', background: item.note ? activeOriginal.accent : '#f7f5f0', borderRadius:4, cursor:'text', fontSize:11.5, lineHeight:1.55, color: item.note ? '#444' : '#bbb', fontStyle: item.note ? 'normal' : 'italic', borderLeft: item.note ? `3px solid ${activeOriginal.color}88` : '3px solid transparent', transition:'all 0.15s', whiteSpace:'pre-wrap' }}>
                                 {item.note || '＋ 點此新增工作備註'}
                               </div>
                             )}
@@ -332,7 +332,7 @@ export default function App() {
                             <button onMouseDown={e => { e.preventDefault(); commitBudgetNote() }} style={{ marginTop:4, fontSize:11, padding:'4px 12px', background:cfg.color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer' }}>儲存</button>
                           </div>
                         ) : (
-                          <div onClick={() => setEditingBudgetNote({ cat, id: origItem.id })} style={{ marginTop:6, fontSize:11, color: si.note ? '#555' : '#ccc', fontStyle: si.note ? 'normal' : 'italic', cursor:'text' }}>
+                          <div onClick={() => setEditingBudgetNote({ cat, id: origItem.id })} style={{ marginTop:6, fontSize:11, color: si.note ? '#555' : '#ccc', fontStyle: si.note ? 'normal' : 'italic', cursor:'text', whiteSpace:'pre-wrap' }}>
                             {si.note || '＋ 新增備註'}
                           </div>
                         )}
