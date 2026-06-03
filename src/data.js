@@ -1,457 +1,163 @@
-import { useState, useEffect, useRef } from 'react'
-import { storageGet, storageSet } from './storage'
-import { BUDGET, MONTHS, initBudgetState } from './data'
-import { supabase } from './supabase'
-
-const DB_KEY = 'worklog_115'
-
-const DEADLINES = {
-  now: [
-    { date: '6/5', label: '東亞委員會', color: '#8B5E3C' },
-    { date: '6/8–23', label: '院學士申請', color: '#2e6b8a' },
-    { date: '6月底', label: '學程申請結果公告', color: '#666' },
-  ],
-  july: [
-    { date: '7月中', label: '院學士錄取會議', color: '#2e6b8a' },
-    { date: '7月', label: '學程課程建檔', color: '#666' },
-    { date: '7月', label: '啟動導生宴調查', color: '#2e6b8a' },
-  ],
-  august: [
-    { date: '8/3', label: '課程公告', color: '#666' },
-    { date: '8/18–26', label: '初選', color: '#666' },
-    { date: '8月初', label: '學程異動建檔', color: '#666' },
-    { date: '8月底', label: '官網更新', color: '#666' },
-  ],
-  sept: [
-    { date: '9/4', label: '成績可查', color: '#666' },
-    { date: '9/7', label: '開學', color: '#666' },
-    { date: '9/12', label: '探索學分截止', color: '#2e6b8a' },
-    { date: '9/19', label: '退選截止', color: '#666' },
-    { date: '9/21', label: '加選截止', color: '#666' },
-    { date: '9/23', label: '停修開始', color: '#666' },
-  ],
-  oct: [
-    { date: '10/16', label: '教務會議', color: '#666' },
-    { date: '10/17', label: '校務會議', color: '#666' },
-    { date: '10/26–30', label: '期中考', color: '#666' },
-    { date: '10月', label: '導生宴', color: '#2e6b8a' },
-    { date: '11/2', label: '輔系/跨域申請截止', color: '#666' },
-  ],
-  nov: [
-    { date: '11/20', label: '運動會', color: '#666' },
-    { date: '11/30', label: '碩博士考試申請截止', color: '#666' },
-    { date: '11月', label: '東亞學程申請截止→公告', color: '#8B5E3C' },
-    { date: '11月底', label: '院學士委員會議', color: '#2e6b8a' },
-  ],
-  dec: [
-    { date: '12/11', label: '停修截止', color: '#666' },
-    { date: '12/18', label: '上課結束', color: '#666' },
-    { date: '12/18', label: '教務會議', color: '#666' },
-    { date: '12/21–25', label: '期末考', color: '#666' },
-    { date: '12/25', label: '放假', color: '#666' },
-    { date: '12/28', label: '雙主修放棄截止', color: '#2e6b8a' },
-    { date: '12/28', label: '寒假', color: '#666' },
-  ],
-  jan: [
-    { date: '1/4', label: '成績公告', color: '#666' },
-    { date: '1/4', label: '課程公告', color: '#666' },
-    { date: '1/12–20', label: '初選', color: '#666' },
-    { date: '1/31', label: '學期結束', color: '#666' },
-  ],
-  confirm: [],
+// ── 預算靜態設定 ──────────────────────────────────────────────────────────────
+export const BUDGET = {
+  業務費: {
+    total: 320567,
+    color: '#b5451b',
+    accent: '#f0d5cc',
+    desc: '截止：116年1月31日。建議10月底前向院長報告執行進度，避免年底匆忙消化。',
+    strategy:
+      '餘額偏多，一般活動難以消化完畢。優先確保固定活動（導生宴、委員會議餐費、說明會）足額編列，剩餘額度10月底前提院長討論策略性用途。',
+    items: [
+      { id: 'b1',  label: '院學士招生審查費',           est: 10000, actual: null, note: '每位委員審查費，人數與金額須先與院長確認（114年有提供）' },
+      { id: 'b2',  label: '院學士說明會（115-2預辦）',  est:  5000, actual: null, note: '場地、便當、海報印刷，建議12月前規劃' },
+      { id: 'b3',  label: '院學士第三屆導生宴（115-1）',est:  7000, actual: null, note: '約30人×200元便當＋手搖杯；張登及老師對餐點有時有想法，先確認' },
+      { id: 'b4',  label: '東亞學程導生宴',             est:  4000, actual: null, note: '配合導論課學期，詢問周老師意願後辦理' },
+      { id: 'b5',  label: '東亞學程委員會會議餐費',     est:  3000, actual: null, note: '便當＋場地，每學期一次' },
+      { id: 'b6',  label: '院學士委員會議餐費（115-1）',est:  3000, actual: null, note: '同上' },
+      { id: 'b7',  label: '宣傳物印刷（海報、DM）',     est: 10000, actual: null, note: '院學士＋兩學程各製作一批，建議暑假前設計定案' },
+      { id: 'b8',  label: '院學士禮品補充',             est: 12000, actual: null, note: '磁鐵、鑰匙圈、筆、筆記本，視庫存狀況補充' },
+      { id: 'b9',  label: '首位畢業生成果記錄',         est:  3000, actual: null, note: '照片沖印、感謝卡、紀念品' },
+      { id: 'b10', label: '雜支（郵資、辦公耗材）',     est:  5000, actual: null, note: '' },
+      { id: 'b11', label: '【策略】招生短影片製作',     est: 80000, actual: null, note: '院學士學生訪談剪輯，成本較高但可重複使用多年。需院長核准後才能推進。' },
+      { id: 'b12', label: '【策略】官網視覺更新',       est: 30000, actual: null, note: '委託設計更新院學士官網，提升招生形象。視業務費剩餘情形決定。' },
+      { id: 'b13', label: '【策略】小型跨院系論壇',     est: 20000, actual: null, note: '舉辦工作坊或論壇提升能見度，場地費＋講者費估算。視時程與師資安排。' },
+    ],
+  },
+  人事費: {
+    total: 80828,
+    color: '#2e6b8a',
+    accent: '#cce3ef',
+    desc: '固定支出為導師費與演講費。建議逐一確認各課程辦理情形後分配剩餘額度。',
+    strategy:
+      '固定支出約20,000–35,000元（導師費＋導論課費用），剩餘約45,000–60,000元視實際課程辦理情形分配。若有新導師或額外說明會講者，從此項支出。',
+    items: [
+      { id: 'p1', label: '王道一老師導師費（115-1）',    est:  5000, actual: null, note: '學期初通知，學期末報帳' },
+      { id: 'p2', label: '張登及老師導師費（115-1）',    est:  5000, actual: null, note: '同上' },
+      { id: 'p3', label: '第三屆新導師費（115-1）',      est:  5000, actual: null, note: '視院長推派人數，1名或多名' },
+      { id: 'p4', label: '院學士說明會演講費',           est:  3000, actual: null, note: '視主講人安排，約2,000–4,000元' },
+      { id: 'p5', label: '東亞導論課演講費＋助教費',     est: 15000, actual: null, note: '每學期提供，需確認課程是否開設及辦理方式' },
+      { id: 'p6', label: '中國大陸導論課演講費＋助教費', est: 10000, actual: null, note: '葉老師請辭後由大陸中心接手，需確認後續辦理方式' },
+      { id: 'p7', label: '東亞委員會出席費',             est:  4000, actual: null, note: '含召集人，每學期一次' },
+    ],
+  },
+  設備費: {
+    total: 100000,
+    color: '#5a3a8a',
+    accent: '#e0d5f0',
+    desc: '需要具體採購項目才能動支。建議盡早與院長討論，避免年底前匆忙找用途。',
+    strategy:
+      '此項最需要提早規劃。如無明確需求，強烈建議在10月底前與院長開一次短會確認用途，否則1月底截止前的採購核銷時間非常緊迫。',
+    items: [
+      { id: 'e1', label: '說明會用展示設備（立式展架、海報夾）', est: 12000, actual: null, note: '擺攤及說明會場合使用' },
+      { id: 'e2', label: '會議室投影或顯示設備',                 est: 25000, actual: null, note: '視414/713會議室現有設備狀況決定' },
+      { id: 'e3', label: '辦公設備補充',                         est: 20000, actual: null, note: '視實際需求，請向院辦確認' },
+      { id: 'e4', label: '【待確認】其他採購項目',               est: 43000, actual: null, note: '此項額度偏大，建議10月底前與院長確認具體用途，否則年底難以消化' },
+    ],
+  },
 }
 
+// ── 月份工作靜態設定 ──────────────────────────────────────────────────────────
+export const MONTHS = [
+  {
+    id: 'now', label: '六月', sub: '現在', color: '#b5451b', accent: '#f0d5cc',
+    nextHint: '七月開始前：確認委員評分方式、準備審查材料、提前聯繫各系所排課窗口',
+    items: [
+      { id: 'u1', text: '東亞學程委員會（6月5日）', desc: '會後追蹤課程認列決議的執行；本次有1名師大學生申請課程認列（何宗軒，三門課申請六學分），確認委員審議結果。', done: false, note: '' },
+      { id: 'u2', text: '聯繫洪副：院學士評分方式確認', desc: '確認115年招生審查評分方式是否沿用114年規範（各系學生分區排列、GPA+已修學分排序）。同步確認是否提供委員審查費。', done: false, note: '' },
+      { id: 'u3', text: '院學士申請期間（至6月23日）：系統與資料準備', desc: '提醒學生須至「轉系、輔系、雙主修專區」網站登記，並以信件繳交申請書＋歷年成績單PDF。先向課務組請求成績查詢權限，待取得後確認申請學生的前二學期GPA是否達3.3。院外學生需額外確認是否修畢院基礎必修至少3學分。', done: false, note: '' },
+      { id: 'u4', text: '向首位畢業生索取照片與感言', desc: '畢業典禮已於5月30日結束。越早聯繫配合意願越高。請對方提供：①典禮學士服照片（有證書更佳）②與導師或同學的合照③50–100字感言（修讀動機、最有收穫的課程、給學弟妹的話）。素材後續用於院網新聞稿與說明會投影片。', done: false, note: '' },
+      { id: 'u5', text: '確認畢業證書製發進度', desc: '聯繫註冊組藍雅環小姐（lan@ntu.edu.tw）確認首位雙主修畢業生的證書是否已製發完成。已決議：學位名「社會科學學士學位」/ Bachelor of Arts in Social Sciences；領域英文名：Politics / Economics / Sociology / Social Work / Data Science。', done: false, note: '' },
+      { id: 'u6', text: '東亞學程＋中國大陸學程：審核5月申請結果並公告（開學前完成）', desc: '兩個學程申請期間皆為5月，申請結束後需預留一至兩週作業時間，須於開學前完成公告。\n\n流程：\n① myntu系統「學生資料管理—核准」，檢閱申請結果；寄信提醒只有線上申請但未補交紙本（申請表＋成績單）的學生補件。\n② 整理申請結果送各學程負責教師審閱（東亞→周嘉辰老師；中國大陸→蔡季廷老師/大陸中心）。\n③ 送院長核章。\n④ 公告申請結果於院網，並個別寄信通知申請學生。\n⑤ 進入「學生資料管理—核准」，點選學號前「編輯」設定每位學生的申請結果。\n\n注意：東亞學程核准標準為東亞相關課程至少已修讀6學分（2025/06/09決議）。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'july', label: '七月', sub: '密集月', color: '#c47c1a', accent: '#f5e8cc',
+    nextHint: '八月前：確認院長推派第三屆導師；院網課程清單準備好，開學前一次更新到位',
+    items: [
+      { id: 'j1', text: '院學士招生：整理申請資料，彙整委員評分', desc: '申請截止後統整所有資料。開會前務必逐一確認每位委員對每位申請學生的分數均已填寫（去年曾有漏填）。整理好評分表後送各委員，待回覆彙整完畢再排會議。', done: false, note: '' },
+      { id: 'j2', text: '召開確認錄取名單會議（建議7月中旬前）', desc: '建議本次會議不排其他議案，專注討論名單。因審查人數多、委員討論認真，預留足夠時間。會後發信通知錄取/未錄取學生，更新轉系雙主修系統。', done: false, note: '' },
+      { id: 'j3', text: '院學士排課建檔', desc: '各系所排課通常七月完成。建議在最後一週先寄信或致電確認各系所已完成排課，再進行建檔。課務系統「學期排課」選「社會科學院院學士學位」，備註欄依組別說明。聯絡人：政治系官凌蕙、經濟系楊禮禎、社會系黃瑜焄、社工系翁小雯。', done: false, note: '' },
+      { id: 'j4', text: '兩學程第一次課程建檔', desc: '中國大陸學程關鍵字：中國、中共、大陸、兩岸。東亞學程關鍵字：東亞、東北亞、亞洲、東南亞、日本、韓國、香港、台灣、近代、當代、比較、國際。新課程納入前需先取得開課教師同意。東亞學程需同步更新院網「歷年課程清單」與「近4年課程清單」兩份PDF。', done: false, note: '' },
+      { id: 'j5', text: '請院長推派第三屆導師', desc: '錄取名單確定後進行。第一屆導師為王道一，第二屆為張登及。每屆導師費5,000元/學期，學期初通知，學期末報帳。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'august', label: '八月', sub: '開學前', color: '#5a7a3a', accent: '#deebd0',
+    nextHint: '九月開學後：留意加退選期間院學士學生選課狀況；東亞學程11月申請的系統要在九月底設定好並開始宣傳',
+    items: [
+      { id: 'a1', text: '第二次課程異動建檔', desc: '課程公告後至選課開始前約一週作業時間。進課務系統進行異動，填寫「課程異動申報書」（備註欄填領域別＋異動原因），核院長章後送教務處課務組王冠盈先生（kywang@ntu.edu.tw，#303）。', done: false, note: '' },
+      { id: 'a2', text: '院學士、兩學程官網課程資訊全面更新', desc: '開學前完成：院學士課程列表、東亞學程歷年課程清單（PDF更新）、中國大陸學程相關資訊。', done: false, note: '' },
+      { id: 'a3', text: '通知導師學期導師費事宜', desc: '三位導師（王道一、張登及、第三屆新導師）各5,000元/學期。學期初通知，確認收款資訊，學期末統一辦理報帳。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'sept', label: '九月', sub: '開學', color: '#2e6b8a', accent: '#cce3ef',
+    nextHint: '十月前：法規修訂若有需求，須在10月16日教務會議前完成院務→行政會議流程；提前啟動導生宴的導師時間調查',
+    items: [
+      { id: 's1', text: '確認第三屆院學士學生正式建檔（9月7日上課開始）', desc: '確認所有錄取學生已在系統中正確建立學籍紀錄，修業辦法、課程規劃已告知學生。', done: false, note: '' },
+      { id: 's2', text: '東亞學程11月申請：系統設定與宣傳啟動', desc: '進入myntu學分學程線上申請管理功能，設定申請時間與申請學年。宣傳管道：院網公告、社科院email全院學生、海報張貼、校園公布欄。委員們希望擴大國際生招生，可請國際處協助轉發（intstudent@ntu.edu.tw）。', done: false, note: '' },
+      { id: 's3', text: '參加課務組排課說明會（待課務組通知）', desc: '115-1排課前需參加課務組說明會，待通知時程。', done: false, note: '' },
+      { id: 's4', text: '9月12日：114-2探索學分申請截止', desc: '院學士必修課程不得申請探索學分（113-2會議決議）。若學生在申請院學士前已將必修課程申請為探索學分，須重新修習補足成績。如有學生詢問需主動告知。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'oct', label: '十月', sub: '', color: '#5a3a8a', accent: '#e0d5f0',
+    nextHint: '十一月前：東亞學程申請若11月截止，需在月底前整理資料準備送審；院學士委員會議議程草稿提前送洪副確認',
+    items: [
+      { id: 'o1', text: '第一學期第一次教務會議（10月16日）', desc: '若有法規修訂需求，需在此之前完成：院務會議通過→行政會議通過（每月召開兩次）→教務會議。送交行政會議前先請陳虹升先生（seanchen0706@ntu.edu.tw，#105）初步審核，確保內容無誤再送，避免重跑流程。', done: false, note: '' },
+      { id: 'o2', text: '啟動院學士115-1導生宴規劃', desc: '提前兩個月詢問導師可用時間，再對學生發送時間調查表單。餐點預算參考：便當＋手搖杯，約200元/人（第一、二屆約14–32人參與）。張登及老師對餐點有時有想法，確認前先詢問。每次活動須拍照紀錄。', done: false, note: '' },
+      { id: 'o3', text: '向院長報告業務費執行進度（預算頁面確認）', desc: '業務費餘額偏多，建議10月底前主動報告。設備費100,000元需具體採購項目，也在此時一併討論。參考預算分頁的策略備選項目。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'nov', label: '十一月', sub: '', color: '#8a3a5a', accent: '#f0d5e0',
+    nextHint: '十二月前：確認年度預算使用計畫，12月中要完成所有採購；法規修訂最後機會是12月18日教務會議',
+    items: [
+      { id: 'n1', text: '東亞學程11月申請結束：整理審核→送院長章→公告', desc: '申請結束後整理申請結果，送周嘉辰老師審閱，再送院長核章，最後公告於院網並寄信給申請學生。核准標準：東亞相關課程至少已修讀6學分。', done: false, note: '' },
+      { id: 'n2', text: '院學士115-1審查小組會議（建議11月底前召開）', desc: '可納入議案：本學期課程認列案、下學期說明會規劃、年度預算執行確認、指定選修課程調整評估（各系所是否需增列或刪減）。議程書寫循往例，開會前須給洪副確認。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'dec', label: '十二月', sub: '年度衝刺', color: '#b5451b', accent: '#f0d5cc',
+    nextHint: '一月前：學程修畢主動查閱；115-2排課準備（課程1月4日公告）；通訊投票處理學分認列案（如有）',
+    items: [
+      { id: 'd1', text: '12月11日 停修申請截止', desc: '留意是否有院學士學生停修必修課程，若有需追蹤修課狀況。', done: false, note: '' },
+      { id: 'd2', text: '12月18日 第一學期第二次教務會議', desc: '本學期法規修訂的最後機會。若有需要修法的議案，須在此前完成院務→行政→教務的完整流程。', done: false, note: '' },
+      { id: 'd3', text: '12月28日 應屆畢業生放棄雙主修申請截止', desc: '確認是否有院學士學生需辦理。同日為應屆畢業生延長修業年限申請截止。', done: false, note: '' },
+      { id: 'd4', text: '年度預算：12月中前完成所有採購與核銷', desc: '業務費、人事費、設備費須於116年1月31日前全數報帳完畢。建議12月中前完成採購，留緩衝時間辦理核銷手續。詳細項目請見預算分頁。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'jan', label: '一月', sub: '學期末', color: '#2e6b5a', accent: '#cceee5',
+    nextHint: '115-2啟動前：115-2排課第一次建檔；東亞學程下學期申請系統設定；向院長確認下學期說明會規劃',
+    items: [
+      { id: 'ja1', text: '主動查閱學程修畢資格', desc: '進入Myntu學分學程系統，查閱在籍學生是否已符合修畢條件但尚未申請。特別注意：部分課程於學生畢業後才納入認列，需回溯確認。若發現符合者，寄信告知並協助辦理證書申請（可代向藍雅環老師/游文文老師借調成績單）。', done: false, note: '' },
+      { id: 'ja2', text: '通訊投票：學生學分認列案（如有）', desc: '若學期中有學生申請課程認列，先徵詢開課教師意見，再提請委員進行通訊審查與表決。', done: false, note: '' },
+      { id: 'ja3', text: '115-2排課準備（課程1月4日公告）', desc: '課程公告後即可開始準備，待各系所排課完成後進行建檔。', done: false, note: '' },
+      { id: 'ja4', text: '1月31日 115-1學期結束 / 年度截止', desc: '確認所有業務費、人事費、設備費均已報帳完畢。學期成績確認，準備115-2開學事宜。', done: false, note: '' },
+    ],
+  },
+  {
+    id: 'confirm', label: '待確認', sub: '隨時', color: '#333', accent: '#e8e5e0',
+    nextHint: null,
+    items: [
+      { id: 'c1', text: '第三屆院學士導師人選（院長）', desc: '錄取名單確定後請院長推派，盡早確認以便安排導生宴與聯繫事宜。', done: false, note: '' },
+      { id: 'c2', text: '115年招生審查費是否提供（洪副或院長）', desc: '114年因審查人數較多有提供審查費。115年是否延續需事先確認。', done: false, note: '' },
+      { id: 'c3', text: '畢業證書製發進度（藍雅環 lan@ntu.edu.tw）', desc: '確認首位雙主修畢業生的證書製發狀態；確認後續年度標準送件流程。', done: false, note: '' },
+      { id: 'c4', text: '中國大陸學程接手進度（大陸中心）', desc: '葉國俊老師114-2請辭後由蔡季廷老師接手(chiting@ntu.edu.tw/#68305)，需追蹤是否需要召開委員會或修法。', done: false, note: '' },
+      { id: 'c5', text: '設備費與業務費大額剩餘用途（院長）', desc: '設備費100,000需具體採購項目；業務費320,567餘額偏多，需討論策略性用法。詳見預算分頁。', done: false, note: '' },
+      { id: 'c6', text: '115-1院學士委員會議時間（洪副）', desc: '建議11月底前召開，議程草稿提前送洪副確認。', done: false, note: '' },
+      { id: 'c7', text: '東亞學程導生宴意願（周嘉辰老師）', desc: '建議配合導論課開設學期詢問，如有開東亞導論即可詢問是否辦理。', done: false, note: '' },
+      { id: 'c8', text: '116年杜鵑花節擺攤評估', desc: '前手建議不參加（效果有限，客層不符）。建議評估後提供院長參考意見。', done: false, note: '' },
+    ],
+  },
+]
 
-function deepClone(obj) { return JSON.parse(JSON.stringify(obj)) }
-function fmt(n) { return n == null ? '—' : '＄' + n.toLocaleString() }
-
-export default function App() {
-  const [sections, setSections]           = useState(null)
-  const [budgetState, setBudgetState]     = useState(null)
-  const [freeNote, setFreeNote]           = useState('')
-  const [activeTab, setActiveTab]         = useState('work')
-  const [activeMonth, setActiveMonth]     = useState(null)
-  const [editingNote, setEditingNote]     = useState(null)
-  const [editingBudgetNote, setEditingBudgetNote] = useState(null)
-  const [saving, setSaving]               = useState(false)
-  const [justSaved, setJustSaved]         = useState(false)
-  const [dbStatus, setDbStatus]           = useState('loading') // 'loading' | 'ok' | 'local'
-  const noteRef       = useRef(null)
-  const budgetNoteRef = useRef(null)
-
-  // ── 載入 ────────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    async function load() {
-      try {
-        const saved = await storageGet(DB_KEY)
-        if (saved) {
-          // 合併：用 MONTHS 為基礎，把 Supabase 裡已有的 done/note 狀態套回來
-          const merged = deepClone(MONTHS).map(month => {
-            const savedMonth = (saved.sections || []).find(m => m.id === month.id)
-            if (!savedMonth) return month
-            return {
-              ...month,
-              items: month.items.map(item => {
-                const savedItem = savedMonth.items.find(i => i.id === item.id)
-                if (!savedItem) return item // 新增的事項，用預設值
-                return { ...item, done: savedItem.done, note: savedItem.note }
-              })
-            }
-          })
-          setSections(merged)
-
-          // 預算：同樣合併，保留已輸入的 actual/note
-          const freshBudget = initBudgetState()
-          const mergedBudget = {}
-          Object.keys(freshBudget).forEach(cat => {
-            mergedBudget[cat] = freshBudget[cat].map(item => {
-              const savedItem = (saved.budget?.[cat] || []).find(i => i.id === item.id)
-              if (!savedItem) return item
-              return { ...item, actual: savedItem.actual, note: savedItem.note }
-            })
-          })
-          setBudgetState(mergedBudget)
-          setFreeNote(saved.freeNote || '')
-        } else {
-          setSections(deepClone(MONTHS))
-          setBudgetState(initBudgetState())
-        }
-        // 判斷是 Supabase 還是 localStorage
-        setDbStatus(supabase ? 'ok' : 'local')
-      } catch (e) {
-        console.error(e)
-        setSections(deepClone(MONTHS))
-        setBudgetState(initBudgetState())
-        setDbStatus('local')
-      }
-    }
-    load()
-  }, [])
-
-  useEffect(() => { if (editingNote      && noteRef.current)       noteRef.current.focus()       }, [editingNote])
-  useEffect(() => { if (editingBudgetNote && budgetNoteRef.current) budgetNoteRef.current.focus() }, [editingBudgetNote])
-
-  // ── 存檔 ────────────────────────────────────────────────────────────────────
-  async function persist(sec, bud, fn) {
-    setSaving(true)
-    try {
-      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, updatedAt: new Date().toISOString() })
-      setJustSaved(true)
-      setTimeout(() => setJustSaved(false), 1800)
-    } catch(e) { console.error('存檔失敗', e) }
-    setSaving(false)
-  }
-
-  // ── 工作事項操作 ─────────────────────────────────────────────────────────────
-  function toggleDone(monthId, itemId) {
-    const next = deepClone(sections)
-    const item = next.find(m => m.id === monthId).items.find(i => i.id === itemId)
-    item.done = !item.done
-    setSections(next)
-    persist(next, budgetState, freeNote)
-  }
-
-  function updateNote(monthId, itemId, val) {
-    const next = deepClone(sections)
-    next.find(m => m.id === monthId).items.find(i => i.id === itemId).note = val
-    setSections(next)
-  }
-
-  function commitNote() {
-    setEditingNote(null)
-    persist(sections, budgetState, freeNote)
-  }
-
-  // ── 預算操作 ─────────────────────────────────────────────────────────────────
-  function updateActual(cat, itemId, val) {
-    const next = deepClone(budgetState)
-    next[cat].find(i => i.id === itemId).actual = val === '' ? null : Number(val.replace(/[^0-9]/g, ''))
-    setBudgetState(next)
-    persist(sections, next, freeNote)
-  }
-
-  function updateBudgetNote(cat, itemId, val) {
-    const next = deepClone(budgetState)
-    next[cat].find(i => i.id === itemId).note = val
-    setBudgetState(next)
-  }
-
-  function commitBudgetNote() {
-    setEditingBudgetNote(null)
-    persist(sections, budgetState, freeNote)
-  }
-
-  // ── Loading ──────────────────────────────────────────────────────────────────
-  if (!sections || !budgetState) {
-    return (
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', fontFamily:'Georgia,serif', color:'#888', fontSize:14 }}>
-        載入中…
-      </div>
-    )
-  }
-
-  // ── 計算 ─────────────────────────────────────────────────────────────────────
-  const totalItems = sections.reduce((a, m) => a + m.items.length, 0)
-  const totalDone  = sections.reduce((a, m) => a + m.items.filter(i => i.done).length, 0)
-  const activeData     = activeMonth ? sections.find(m => m.id === activeMonth) : null
-  const activeOriginal = activeMonth ? MONTHS.find(m => m.id === activeMonth)   : null
-
-  const budgetTotals = Object.entries(BUDGET).map(([cat, cfg]) => {
-    const stateItems = budgetState[cat]
-    const spent = stateItems.reduce((a, i) => a + (i.actual || 0), 0)
-    const est   = cfg.items.reduce((a, i) => a + i.est, 0)
-    return { cat, total: cfg.total, spent, est, remain: cfg.total - spent }
+// 初始化可寫的預算資料（去掉靜態設定，只留動態欄位）
+export function initBudgetState() {
+  const b = {}
+  Object.entries(BUDGET).forEach(([cat, cfg]) => {
+    b[cat] = cfg.items.map(i => ({ id: i.id, actual: i.actual, note: i.note }))
   })
-  const grandTotal = budgetTotals.reduce((a, b) => a + b.total, 0)
-  const grandSpent = budgetTotals.reduce((a, b) => a + b.spent, 0)
-
-  const statusColor = justSaved ? '#7dba7d' : saving ? '#aaa' : dbStatus === 'local' ? '#c47c1a' : '#555'
-  const statusText  = saving ? '儲存中…' : justSaved ? '✓ 已儲存' : dbStatus === 'local' ? '本地暫存（未連 Supabase）' : '自動存檔'
-
-  // ── Render ───────────────────────────────────────────────────────────────────
-  return (
-    <div style={{ position:'fixed', inset:0, display:'flex', flexDirection:'column', background:'#f2ede6', fontFamily:"'Georgia','Noto Serif TC',serif", overflow:'hidden' }}>
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; }
-        @keyframes fadeIn { from { opacity:0; transform:translateX(8px) } to { opacity:1; transform:translateX(0) } }
-        .note-card:hover { box-shadow: 3px 6px 16px rgba(0,0,0,0.15) !important; }
-        ::-webkit-scrollbar { width:6px; height:6px; }
-        ::-webkit-scrollbar-track { background:transparent; }
-        ::-webkit-scrollbar-thumb { background:#d0cbc4; border-radius:3px; }
-      `}</style>
-
-      {/* ── Topbar ── */}
-      <div style={{ background:'#1c1c1c', color:'#f2ede6', padding:'16px 28px', flexShrink:0 }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-          <div>
-            <div style={{ fontSize:10, letterSpacing:'0.2em', color:'#888', fontFamily:'monospace', marginBottom:2 }}>115學年度 · 社科院</div>
-            <div style={{ fontSize:17, letterSpacing:'0.03em' }}>院學士 × 學分學程 工作紀錄</div>
-          </div>
-          <div style={{ textAlign:'right' }}>
-            {activeTab === 'work'
-              ? <div style={{ fontFamily:'monospace', fontSize:20 }}>{totalDone}<span style={{color:'#555',fontSize:14}}>/{totalItems}</span> <span style={{fontSize:11,color:'#666'}}>完成</span></div>
-              : <div style={{ fontFamily:'monospace', fontSize:14, color:'#888' }}>支出 {fmt(grandSpent)} <span style={{color:'#555'}}>/ {fmt(grandTotal)}</span></div>
-            }
-            <div style={{ fontSize:10, color: statusColor, fontFamily:'monospace', marginTop:2 }}>{statusText}</div>
-          </div>
-        </div>
-        <div style={{ display:'flex', gap:4 }}>
-          {[['work','工作時程'],['budget','預算控管']].map(([key, label]) => (
-            <button key={key} onClick={() => { setActiveTab(key); setActiveMonth(null) }}
-              style={{ padding:'6px 18px', fontSize:12, fontFamily:'Georgia,serif', background: activeTab===key ? '#f2ede6' : 'transparent', color: activeTab===key ? '#1c1c1c' : '#888', border:'1px solid', borderColor: activeTab===key ? '#f2ede6' : '#444', borderRadius:'4px 4px 0 0', cursor:'pointer', letterSpacing:'0.04em' }}>
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* ════════════════ 工作時程 ════════════════ */}
-      {activeTab === 'work' && (
-        <div style={{ display:'flex', flex:1, minHeight:0 }}>
-          {/* 左欄便條紙 */}
-          <div style={{ width:160, flexShrink:0, overflowY:'auto', padding:'20px 12px 20px 16px', display:'flex', flexDirection:'column', gap:12, borderRight:'1px solid #e0dbd4', background:'#ece8e1' }}>
-            {sections.map((month, idx) => {
-              const orig = MONTHS[idx]
-              const done = month.items.filter(i => i.done).length
-              const total = month.items.length
-              const isActive = activeMonth === month.id
-              return (
-                <button key={month.id} className="note-card" onClick={() => setActiveMonth(isActive ? null : month.id)}
-                  style={{ width:'100%', background: isActive ? orig.color : '#fff', color: isActive ? '#fff' : '#1c1c1c', border:`2px solid ${orig.color}`, borderRadius:6, padding:'12px 10px 10px', cursor:'pointer', textAlign:'left', position:'relative', boxShadow: isActive ? `0 4px 14px ${orig.color}55` : '2px 3px 8px rgba(0,0,0,0.09)', transition:'all 0.18s ease', display:'flex', flexDirection:'column', gap:8 }}>
-                  <div style={{ position:'absolute', top:7, right:10, width:8, height:8, borderRadius:'50%', background: isActive ? 'rgba(255,255,255,0.5)' : orig.color, opacity:0.8 }} />
-                  <div>
-                    <div style={{ fontSize:18, fontWeight:'bold', lineHeight:1 }}>{orig.label}</div>
-                    {orig.sub && <div style={{ fontSize:10, opacity:0.6, marginTop:2, letterSpacing:'0.06em' }}>{orig.sub}</div>}
-                  </div>
-                  <div>
-                    <div style={{ fontSize:10, opacity:0.55, marginBottom:5, fontFamily:'monospace' }}>{done}/{total}</div>
-                    <div style={{ height:2, background: isActive ? 'rgba(255,255,255,0.25)' : '#eee', borderRadius:1 }}>
-                      <div style={{ height:'100%', width:`${total ? done/total*100 : 0}%`, background: isActive ? '#fff' : orig.color, borderRadius:1, opacity: isActive ? 0.9 : 0.55, transition:'width 0.3s' }} />
-                    </div>
-                    <div style={{ display:'flex', flexWrap:'wrap', gap:3, marginTop:6 }}>
-                      {month.items.map(item => (
-                        <div key={item.id} style={{ width:7, height:7, borderRadius:'50%', background: item.done ? (isActive ? '#fff' : orig.color) : (isActive ? 'rgba(255,255,255,0.25)' : '#ddd'), transition:'background 0.2s' }} />
-                      ))}
-                    </div>
-                  </div>
-                </button>
-              )
-            })}
-          </div>
-
-          {/* 右欄內容 */}
-          <div style={{ flex:1, overflowY:'auto', padding:'20px 24px 40px' }}>
-            {activeData && activeOriginal ? (
-              <div style={{ animation:'fadeIn 0.18s ease' }}>
-                {/* 標題 */}
-                <div style={{ background:activeOriginal.color, color:'#fff', borderRadius:'10px 10px 0 0', padding:'18px 24px 14px', display:'flex', alignItems:'flex-end', justifyContent:'space-between' }}>
-                  <div>
-                    <div style={{ fontSize:10, letterSpacing:'0.18em', opacity:0.75, fontFamily:'monospace', marginBottom:3 }}>{activeOriginal.sub || '工作事項'}</div>
-                    <div style={{ fontSize:24, fontWeight:'bold' }}>{activeOriginal.label}</div>
-                  </div>
-                  <div style={{ fontFamily:'monospace', fontSize:12, opacity:0.85 }}>{activeData.items.filter(i=>i.done).length} / {activeData.items.length} 完成</div>
-                </div>
-                {/* Deadline 標籤列 */}
-                {DEADLINES[activeMonth] && DEADLINES[activeMonth].length > 0 && (
-                  <div style={{ background:`${activeOriginal.color}18`, borderLeft:`3px solid ${activeOriginal.color}`, padding:'8px 22px', display:'flex', flexWrap:'wrap', gap:'6px 16px', alignItems:'center' }}>
-                    {DEADLINES[activeMonth].map((d, i) => (
-                      <span key={i} style={{ fontSize:11.5, lineHeight:1.4, whiteSpace:'nowrap' }}>
-                        <span style={{ color: d.color, fontWeight:'bold', fontFamily:'monospace' }}>{d.date}</span>
-                        <span style={{ color:'#1c1c1c', marginLeft:3 }}>{d.label}</span>
-                      </span>
-                    ))}
-                  </div>
-                )}
-                {/* 項目 */}
-                <div style={{ background:'#fff', borderRadius:'0 0 10px 10px', border:`1px solid ${activeOriginal.color}44`, borderTop:'none' }}>
-                  {activeData.items.map((item, idx) => {
-                    const isEd = editingNote?.monthId === activeMonth && editingNote?.itemId === item.id
-                    return (
-                      <div key={item.id} style={{ padding:'16px 22px', borderBottom: idx < activeData.items.length-1 ? '1px solid #f0ede8' : 'none', background: item.done ? '#fafaf8' : '#fff', borderRadius: idx === activeData.items.length-1 ? '0 0 10px 10px' : 0 }}>
-                        <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
-                          <button onClick={() => toggleDone(activeMonth, item.id)} style={{ width:20, height:20, borderRadius:4, flexShrink:0, marginTop:3, border: item.done ? 'none' : `2px solid ${activeOriginal.color}77`, background: item.done ? activeOriginal.color : 'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.15s' }}>
-                            {item.done && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-                          </button>
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <div style={{ fontSize:14, fontWeight:'bold', lineHeight:1.4, color: item.done ? '#bbb' : '#1c1c1c', textDecoration: item.done ? 'line-through' : 'none' }}>{item.text}</div>
-                            <div style={{ marginTop:5, fontSize:12.5, lineHeight:1.7, color: item.done ? '#ccc' : '#666' }}>{item.desc}</div>
-                            {isEd ? (
-                              <div style={{ marginTop:9 }}>
-                                <textarea ref={noteRef} value={item.note} onChange={e => updateNote(activeMonth, item.id, e.target.value)} placeholder="記錄進度、聯絡結果、注意事項…" style={{ width:'100%', minHeight:68, border:`1px solid ${activeOriginal.color}66`, borderRadius:5, padding:'7px 10px', fontSize:12.5, fontFamily:'Georgia,serif', color:'#333', resize:'vertical', background:'#fdfcfa', boxSizing:'border-box', outline:'none', lineHeight:1.5 }} />
-                                <button onMouseDown={e => { e.preventDefault(); commitNote() }} style={{ marginTop:4, fontSize:11.5, padding:'4px 13px', background:activeOriginal.color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer' }}>儲存備註</button>
-                              </div>
-                            ) : (
-                              <div onClick={() => setEditingNote({ monthId: activeMonth, itemId: item.id })} style={{ marginTop:7, padding:'5px 10px', background: item.note ? activeOriginal.accent : '#f7f5f0', borderRadius:4, cursor:'text', fontSize:11.5, lineHeight:1.55, color: item.note ? '#444' : '#bbb', fontStyle: item.note ? 'normal' : 'italic', borderLeft: item.note ? `3px solid ${activeOriginal.color}88` : '3px solid transparent', transition:'all 0.15s', whiteSpace:'pre-wrap' }}>
-                                {item.note || '＋ 點此新增工作備註'}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-                {/* 下個月提醒 */}
-                {activeOriginal.nextHint && (
-                  <div style={{ marginTop:14, padding:'12px 16px', background:'#f7f5f0', borderRadius:8, borderLeft:`3px solid ${activeOriginal.color}`, fontSize:12, lineHeight:1.65, color:'#666' }}>
-                    <span style={{ fontWeight:'bold', color:activeOriginal.color, marginRight:6 }}>下個月要準備→</span>{activeOriginal.nextHint}
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', height:'60%', color:'#bbb', gap:10 }}>
-                <div style={{ fontSize:32 }}>←</div>
-                <div style={{ fontSize:13, letterSpacing:'0.06em' }}>選擇左側月份查看工作事項</div>
-              </div>
-            )}
-            {/* 其他備忘 */}
-            <div style={{ marginTop:20, background:'#fff', borderRadius:10, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-              <div style={{ padding:'13px 22px 10px', borderBottom:'1px solid #f0ede8' }}>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#888', letterSpacing:'0.06em' }}>其他備忘</div>
-              </div>
-              <div style={{ padding:'10px 22px 18px' }}>
-                <textarea value={freeNote} onChange={e => setFreeNote(e.target.value)} onBlur={e => persist(sections, budgetState, e.target.value)} placeholder="隨時記錄其他事項、追蹤中的對話、想法…" style={{ width:'100%', minHeight:90, border:'1px solid #e0dbd4', borderRadius:6, padding:'9px 11px', fontSize:13, fontFamily:'Georgia,serif', color:'#333', resize:'vertical', background:'#fdfcfa', boxSizing:'border-box', outline:'none', lineHeight:1.6 }} />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ════════════════ 預算控管 ════════════════ */}
-      {activeTab === 'budget' && (
-        <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
-          {/* 總覽 */}
-          <div style={{ display:'flex', gap:12, marginBottom:24, flexWrap:'wrap' }}>
-            <div style={{ flex:1, minWidth:160, background:'#1c1c1c', color:'#f2ede6', borderRadius:10, padding:'18px 20px' }}>
-              <div style={{ fontSize:10, letterSpacing:'0.15em', color:'#888', fontFamily:'monospace', marginBottom:6 }}>年度總額</div>
-              <div style={{ fontSize:24, fontFamily:'monospace', fontWeight:'bold' }}>{fmt(grandTotal)}</div>
-              <div style={{ marginTop:10, height:3, background:'#333', borderRadius:2 }}>
-                <div style={{ height:'100%', width:`${grandTotal ? grandSpent/grandTotal*100 : 0}%`, background:'#f2ede6', borderRadius:2, transition:'width 0.4s' }} />
-              </div>
-              <div style={{ fontSize:11, color:'#888', marginTop:6, fontFamily:'monospace' }}>已支出 {fmt(grandSpent)} · 剩餘 {fmt(grandTotal-grandSpent)}</div>
-            </div>
-            {budgetTotals.map(({ cat, total, spent, remain }) => {
-              const cfg = BUDGET[cat]
-              return (
-                <div key={cat} style={{ flex:1, minWidth:140, background:'#fff', border:`2px solid ${cfg.color}`, borderRadius:10, padding:'18px 20px' }}>
-                  <div style={{ fontSize:10, letterSpacing:'0.12em', color:cfg.color, fontFamily:'monospace', marginBottom:6 }}>{cat}</div>
-                  <div style={{ fontSize:20, fontFamily:'monospace', fontWeight:'bold', color:'#1c1c1c' }}>{fmt(total)}</div>
-                  <div style={{ marginTop:10, height:3, background:'#eee', borderRadius:2 }}>
-                    <div style={{ height:'100%', width:`${total ? spent/total*100 : 0}%`, background:cfg.color, borderRadius:2, opacity:0.7, transition:'width 0.4s' }} />
-                  </div>
-                  <div style={{ fontSize:11, color:'#999', marginTop:6, fontFamily:'monospace' }}>支出 {fmt(spent)} · 餘 {fmt(remain)}</div>
-                </div>
-              )
-            })}
-          </div>
-
-          {/* 各類別明細 */}
-          {Object.entries(BUDGET).map(([cat, cfg]) => {
-            const stateItems = budgetState[cat]
-            const spent = stateItems.reduce((a, i) => a + (i.actual || 0), 0)
-            const est   = cfg.items.reduce((a, i) => a + i.est, 0)
-            return (
-              <div key={cat} style={{ background:'#fff', borderRadius:10, border:`1px solid ${cfg.color}44`, marginBottom:16, overflow:'hidden' }}>
-                <div style={{ background:cfg.color, padding:'14px 24px 12px', display:'flex', alignItems:'flex-end', justifyContent:'space-between' }}>
-                  <div>
-                    <div style={{ fontSize:18, fontWeight:'bold', color:'#fff' }}>{cat}</div>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.7)', marginTop:3 }}>{cfg.desc}</div>
-                  </div>
-                  <div style={{ textAlign:'right', fontFamily:'monospace', fontSize:12, color:'rgba(255,255,255,0.85)' }}>
-                    <div>總額 {fmt(cfg.total)}</div>
-                    <div style={{ fontSize:10, opacity:0.7 }}>估計 {fmt(est)} · 實際 {fmt(spent)}</div>
-                  </div>
-                </div>
-                <div style={{ padding:'12px 24px', background:cfg.accent, borderBottom:`1px solid ${cfg.color}22`, fontSize:12, lineHeight:1.65, color:'#444' }}>
-                  <span style={{ fontWeight:'bold', color:cfg.color }}>策略建議　</span>{cfg.strategy}
-                </div>
-                {cfg.items.map((origItem, idx) => {
-                  const si = stateItems.find(i => i.id === origItem.id)
-                  const isStrategy = origItem.label.startsWith('【策略】') || origItem.label.startsWith('【待確認】')
-                  const isEd = editingBudgetNote?.cat === cat && editingBudgetNote?.id === origItem.id
-                  const noteVal = si.note !== undefined ? si.note : origItem.note
-                  return (
-                    <div key={origItem.id} style={{ padding:'14px 24px', borderBottom: idx < cfg.items.length-1 ? '1px solid #f5f2ee' : 'none', background: isStrategy ? `${cfg.accent}88` : '#fff', display:'flex', gap:16, alignItems:'flex-start' }}>
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <div style={{ display:'flex', alignItems:'baseline', gap:8, flexWrap:'wrap' }}>
-                          <span style={{ fontSize:14, fontWeight:'bold', color: isStrategy ? cfg.color : '#1c1c1c' }}>{origItem.label}</span>
-                          {isStrategy && <span style={{ fontSize:10, background:cfg.color, color:'#fff', padding:'1px 6px', borderRadius:3 }}>待院長確認</span>}
-                        </div>
-                        <div style={{ fontSize:12, color:'#888', marginTop:3, lineHeight:1.5 }}>{noteVal || origItem.note}</div>
-                        {isEd ? (
-                          <div style={{ marginTop:8 }}>
-                            <textarea ref={budgetNoteRef} value={noteVal} onChange={e => updateBudgetNote(cat, origItem.id, e.target.value)} placeholder="備註說明…" style={{ width:'100%', minHeight:60, border:`1px solid ${cfg.color}66`, borderRadius:5, padding:'7px 10px', fontSize:12, fontFamily:'Georgia,serif', resize:'vertical', background:'#fdfcfa', boxSizing:'border-box', outline:'none', lineHeight:1.5 }} />
-                            <button onMouseDown={e => { e.preventDefault(); commitBudgetNote() }} style={{ marginTop:4, fontSize:11, padding:'4px 12px', background:cfg.color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer' }}>儲存</button>
-                          </div>
-                        ) : (
-                          <div onClick={() => setEditingBudgetNote({ cat, id: origItem.id })} style={{ marginTop:6, fontSize:11, color: si.note ? '#555' : '#ccc', fontStyle: si.note ? 'normal' : 'italic', cursor:'text', whiteSpace:'pre-wrap' }}>
-                            {si.note || '＋ 新增備註'}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ flexShrink:0, textAlign:'right', minWidth:140 }}>
-                        <div style={{ fontSize:11, color:'#bbb', fontFamily:'monospace', marginBottom:4 }}>估計 {fmt(origItem.est)}</div>
-                        <input type="text" value={si.actual == null ? '' : si.actual} onChange={e => updateActual(cat, origItem.id, e.target.value)} placeholder="實際金額"
-                          style={{ width:120, padding:'6px 10px', fontSize:13, fontFamily:'monospace', border:`1px solid ${si.actual != null ? cfg.color : '#ddd'}`, borderRadius:5, textAlign:'right', outline:'none', background: si.actual != null ? cfg.accent : '#fafaf8', color:'#1c1c1c', boxSizing:'border-box' }} />
-                        {si.actual != null && (
-                          <div style={{ fontSize:10, fontFamily:'monospace', color: si.actual > origItem.est ? '#c0392b' : '#27ae60', marginTop:3 }}>
-                            {si.actual > origItem.est ? '▲ 超估' : '▼ 省'} {fmt(Math.abs(si.actual - origItem.est))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-                <div style={{ padding:'10px 24px', background:'#f9f7f4', display:'flex', justifyContent:'flex-end', gap:24, fontSize:12, fontFamily:'monospace', color:'#888', borderTop:`1px solid ${cfg.color}22` }}>
-                  <span>估計合計 {fmt(est)}</span>
-                  <span style={{ color:cfg.color, fontWeight:'bold' }}>實際已支出 {fmt(spent)}</span>
-                  <span>預算餘額 {fmt(cfg.total - spent)}</span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </div>
-  )
+  return b
 }
