@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { storageGet, storageSet } from './storage'
 import { BUDGET, MONTHS, initBudgetState } from './data'
+import { supabase } from './supabase'
 
 const DB_KEY = 'worklog_115'
 
@@ -35,7 +36,6 @@ export default function App() {
           setBudgetState(initBudgetState())
         }
         // 判斷是 Supabase 還是 localStorage
-        const { supabase } = await import('./supabase')
         setDbStatus(supabase ? 'ok' : 'local')
       } catch (e) {
         console.error(e)
