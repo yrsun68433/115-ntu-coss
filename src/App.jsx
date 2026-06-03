@@ -28,9 +28,33 @@ export default function App() {
       try {
         const saved = await storageGet(DB_KEY)
         if (saved) {
-          setSections(saved.sections || deepClone(MONTHS))
-          setBudgetState(saved.budget  || initBudgetState())
-          setFreeNote(saved.freeNote   || '')
+          // 合併：用 MONTHS 為基礎，把 Supabase 裡已有的 done/note 狀態套回來
+          const merged = deepClone(MONTHS).map(month => {
+            const savedMonth = (saved.sections || []).find(m => m.id === month.id)
+            if (!savedMonth) return month
+            return {
+              ...month,
+              items: month.items.map(item => {
+                const savedItem = savedMonth.items.find(i => i.id === item.id)
+                if (!savedItem) return item // 新增的事項，用預設值
+                return { ...item, done: savedItem.done, note: savedItem.note }
+              })
+            }
+          })
+          setSections(merged)
+
+          // 預算：同樣合併，保留已輸入的 actual/note
+          const freshBudget = initBudgetState()
+          const mergedBudget = {}
+          Object.keys(freshBudget).forEach(cat => {
+            mergedBudget[cat] = freshBudget[cat].map(item => {
+              const savedItem = (saved.budget?.[cat] || []).find(i => i.id === item.id)
+              if (!savedItem) return item
+              return { ...item, actual: savedItem.actual, note: savedItem.note }
+            })
+          })
+          setBudgetState(mergedBudget)
+          setFreeNote(saved.freeNote || '')
         } else {
           setSections(deepClone(MONTHS))
           setBudgetState(initBudgetState())
