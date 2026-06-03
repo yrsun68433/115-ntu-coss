@@ -5,6 +5,63 @@ import { supabase } from './supabase'
 
 const DB_KEY = 'worklog_115'
 
+const DEADLINES = {
+  now: [
+    { date: '6/5', label: '東亞委員會', color: '#8B5E3C' },
+    { date: '6/8–23', label: '院學士申請', color: '#2e6b8a' },
+    { date: '6月底', label: '學程申請結果公告', color: '#666' },
+  ],
+  july: [
+    { date: '7月中', label: '院學士錄取會議', color: '#2e6b8a' },
+    { date: '7月', label: '學程課程建檔', color: '#666' },
+    { date: '7月', label: '啟動導生宴調查', color: '#2e6b8a' },
+  ],
+  august: [
+    { date: '8/3', label: '課程公告', color: '#666' },
+    { date: '8/18–26', label: '初選', color: '#666' },
+    { date: '8月初', label: '學程異動建檔', color: '#666' },
+    { date: '8月底', label: '官網更新', color: '#666' },
+  ],
+  sept: [
+    { date: '9/4', label: '成績可查', color: '#666' },
+    { date: '9/7', label: '開學', color: '#666' },
+    { date: '9/12', label: '探索學分截止', color: '#2e6b8a' },
+    { date: '9/19', label: '退選截止', color: '#666' },
+    { date: '9/21', label: '加選截止', color: '#666' },
+    { date: '9/23', label: '停修開始', color: '#666' },
+  ],
+  oct: [
+    { date: '10/16', label: '教務會議', color: '#666' },
+    { date: '10/17', label: '校務會議', color: '#666' },
+    { date: '10/26–30', label: '期中考', color: '#666' },
+    { date: '10月', label: '導生宴', color: '#2e6b8a' },
+    { date: '11/2', label: '輔系/跨域申請截止', color: '#666' },
+  ],
+  nov: [
+    { date: '11/20', label: '運動會', color: '#666' },
+    { date: '11/30', label: '碩博士考試申請截止', color: '#666' },
+    { date: '11月', label: '東亞學程申請截止→公告', color: '#8B5E3C' },
+    { date: '11月底', label: '院學士委員會議', color: '#2e6b8a' },
+  ],
+  dec: [
+    { date: '12/11', label: '停修截止', color: '#666' },
+    { date: '12/18', label: '上課結束', color: '#666' },
+    { date: '12/18', label: '教務會議', color: '#666' },
+    { date: '12/21–25', label: '期末考', color: '#666' },
+    { date: '12/25', label: '放假', color: '#666' },
+    { date: '12/28', label: '雙主修放棄截止', color: '#2e6b8a' },
+    { date: '12/28', label: '寒假', color: '#666' },
+  ],
+  jan: [
+    { date: '1/4', label: '成績公告', color: '#666' },
+    { date: '1/4', label: '課程公告', color: '#666' },
+    { date: '1/12–20', label: '初選', color: '#666' },
+    { date: '1/31', label: '學期結束', color: '#666' },
+  ],
+  confirm: [],
+}
+
+
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)) }
 function fmt(n) { return n == null ? '—' : '＄' + n.toLocaleString() }
 
@@ -234,6 +291,17 @@ export default function App() {
                   </div>
                   <div style={{ fontFamily:'monospace', fontSize:12, opacity:0.85 }}>{activeData.items.filter(i=>i.done).length} / {activeData.items.length} 完成</div>
                 </div>
+                {/* Deadline 標籤列 */}
+                {DEADLINES[activeMonth] && DEADLINES[activeMonth].length > 0 && (
+                  <div style={{ background:`${activeOriginal.color}18`, borderLeft:`3px solid ${activeOriginal.color}`, padding:'8px 22px', display:'flex', flexWrap:'wrap', gap:'6px 16px', alignItems:'center' }}>
+                    {DEADLINES[activeMonth].map((d, i) => (
+                      <span key={i} style={{ fontSize:11.5, lineHeight:1.4, whiteSpace:'nowrap' }}>
+                        <span style={{ color: d.color, fontWeight:'bold', fontFamily:'monospace' }}>{d.date}</span>
+                        <span style={{ color:'#1c1c1c', marginLeft:3 }}>{d.label}</span>
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {/* 項目 */}
                 <div style={{ background:'#fff', borderRadius:'0 0 10px 10px', border:`1px solid ${activeOriginal.color}44`, borderTop:'none' }}>
                   {activeData.items.map((item, idx) => {
