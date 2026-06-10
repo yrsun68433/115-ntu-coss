@@ -9,10 +9,15 @@ const DEADLINES = {
   now: [
     { date: '6/5', label: '東亞委員會', color: '#8B5E3C' },
     { date: '6/8–23', label: '院學士申請', color: '#2e6b8a' },
+    { date: '6/25', label: '成績單可下載', color: '#666' },
+    { date: '6/30', label: '同意名單送回註冊組', color: '#2e6b8a' },
     { date: '6月底', label: '學程申請結果公告', color: '#666' },
   ],
   july: [
-    { date: '7月中', label: '院學士錄取會議', color: '#2e6b8a' },
+    { date: '7/2', label: '註冊組再次上傳檔案', color: '#666' },
+    { date: '7/20', label: '轉入名單截止', color: '#2e6b8a' },
+    { date: '7/27', label: '註冊組審核總表', color: '#666' },
+    { date: '7/30', label: '簽請教務長核定', color: '#666' },
     { date: '7月', label: '學程課程建檔', color: '#666' },
     { date: '7月', label: '啟動導生宴調查', color: '#2e6b8a' },
   ],
