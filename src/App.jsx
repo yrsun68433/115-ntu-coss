@@ -133,6 +133,8 @@ export default function App() {
           })
           setBudgetState(mergedBudget)
           setFreeNote(saved.freeNote || '')
+          if (saved.completedNotes) setCompletedNotes(saved.completedNotes)
+          if (saved.heartColors) setHeartColors(saved.heartColors)
         } else {
           setSections(deepClone(MONTHS))
           setBudgetState(initBudgetState())
@@ -153,10 +155,12 @@ export default function App() {
   useEffect(() => { if (editingBudgetNote && budgetNoteRef.current) budgetNoteRef.current.focus() }, [editingBudgetNote])
 
   // ── 存檔 ────────────────────────────────────────────────────────────────────
-  async function persist(sec, bud, fn) {
+  async function persist(sec, bud, fn, cn, hc) {
     setSaving(true)
+    const _cn = cn !== undefined ? cn : completedNotes
+    const _hc = hc !== undefined ? hc : heartColors
     try {
-      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, updatedAt: new Date().toISOString() })
+      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, updatedAt: new Date().toISOString() })
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 1800)
     } catch(e) { console.error('存檔失敗', e) }
@@ -184,12 +188,16 @@ export default function App() {
   }
 
   function updateCompletedNote(monthId, itemId, val) {
-    setCompletedNotes(prev => ({ ...prev, [`${monthId}-${itemId}`]: val }))
+    const next = { ...completedNotes, [`${monthId}-${itemId}`]: val }
+    setCompletedNotes(next)
+    persist(sections, budgetState, freeNote, next, heartColors)
   }
 
   function updateHeartColor(monthId, itemId, color) {
-    setHeartColors(prev => ({ ...prev, [`${monthId}-${itemId}`]: color }))
+    const next = { ...heartColors, [`${monthId}-${itemId}`]: color }
+    setHeartColors(next)
     setColorPickerOpen(null)
+    persist(sections, budgetState, freeNote, completedNotes, next)
   }
 
   // ── 預算操作 ─────────────────────────────────────────────────────────────────
@@ -360,7 +368,7 @@ export default function App() {
                               onChange={e => updateCompletedNote(activeMonth, item.id, e.target.value)}
                               placeholder="備註…"
                               maxLength={20}
-                              style={{ background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.35)', color:'#fff', fontSize:11.5, width: Math.max(44, ((completedNotes[key] || '').length + 1) * 12), fontFamily:'Georgia,serif', padding:'1px 2px', outline:'none' }}
+                              style={{ background:'transparent', border:'none', borderBottom: completedNotes[key] ? '1px solid rgba(255,255,255,0.35)' : 'none', color:'#fff', fontSize:11.5, width: completedNotes[key] ? `${(completedNotes[key].length + 1) * 12}px` : '44px', minWidth:0, maxWidth:160, fontFamily:'Georgia,serif', padding:'1px 2px', outline:'none' }}
                             />
                             {/* 色盤 */}
                             {isPickerOpen && (
