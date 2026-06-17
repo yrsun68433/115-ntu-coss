@@ -91,6 +91,8 @@ export default function App() {
   const [activeMonth, setActiveMonth]     = useState(null)
   const [editingNote, setEditingNote]     = useState(null)
   const [completedNotes, setCompletedNotes] = useState({})
+  const [heartColors, setHeartColors] = useState({})
+  const [colorPickerOpen, setColorPickerOpen] = useState(null)
   const [editingBudgetNote, setEditingBudgetNote] = useState(null)
   const [saving, setSaving]               = useState(false)
   const [justSaved, setJustSaved]         = useState(false)
@@ -183,6 +185,11 @@ export default function App() {
 
   function updateCompletedNote(monthId, itemId, val) {
     setCompletedNotes(prev => ({ ...prev, [`${monthId}-${itemId}`]: val }))
+  }
+
+  function updateHeartColor(monthId, itemId, color) {
+    setHeartColors(prev => ({ ...prev, [`${monthId}-${itemId}`]: color }))
+    setColorPickerOpen(null)
   }
 
   // ── 預算操作 ─────────────────────────────────────────────────────────────────
@@ -315,26 +322,60 @@ export default function App() {
                     </div>
                     <div style={{ fontFamily:'monospace', fontSize:12, opacity:0.85 }}>{activeData.items.filter(i=>i.done).length} / {activeData.items.length} 完成</div>
                   </div>
-                  {/* 已完成：斑馬心 */}
+                  {/* 已完成：愛心區 */}
                   {activeData.items.some(i=>i.done) && (
                     <div style={{ display:'flex', flexWrap:'wrap', gap:8, paddingTop:10, borderTop:'1px solid rgba(255,255,255,0.2)' }}>
-                      {activeData.items.filter(i=>i.done).map(item => (
-                        <div key={item.id}
-                          style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.14)', borderRadius:20, padding:'4px 10px 4px 6px' }}
-                          title="點愛心取消完成"
-                        >
-                          <div onClick={() => toggleDone(activeMonth, item.id)} style={{ cursor:'pointer', fontSize:16, lineHeight:1, userSelect:'none' }}>
-                            ♥
+                      {activeData.items.filter(i=>i.done).map(item => {
+                        const key = `${activeMonth}-${item.id}`
+                        const heartColor = heartColors[key] || '#ffffff'
+                        const isPickerOpen = colorPickerOpen === key
+                        const COLORS = [
+                          { c:'#ffffff', label:'白' },
+                          { c:'#f4a7b9', label:'粉' },
+                          { c:'#f4874b', label:'橘' },
+                          { c:'#f9d85e', label:'黃' },
+                          { c:'#7bc67e', label:'綠' },
+                          { c:'#7ec8e3', label:'藍' },
+                          { c:'#b39ddb', label:'紫' },
+                          { c:'#1a1a1a', label:'黑' },
+                          { c:'#8d6e63', label:'褐' },
+                          { c:'#9e9e9e', label:'灰' },
+                        ]
+                        return (
+                          <div key={item.id} style={{ display:'flex', alignItems:'center', gap:5, background:'rgba(255,255,255,0.14)', borderRadius:20, padding:'5px 10px 5px 8px', position:'relative' }}>
+                            {/* 愛心（點取消完成） */}
+                            <span
+                              onClick={() => toggleDone(activeMonth, item.id)}
+                              title="點擊取消完成"
+                              style={{ fontSize:16, lineHeight:1, cursor:'pointer', color: heartColor, userSelect:'none', textShadow:'0 0 2px rgba(0,0,0,0.3)' }}
+                            >♥</span>
+                            {/* 色點（點選色） */}
+                            <span
+                              onClick={() => setColorPickerOpen(isPickerOpen ? null : key)}
+                              style={{ width:8, height:8, borderRadius:'50%', background: heartColor, border:'1px solid rgba(255,255,255,0.5)', cursor:'pointer', display:'inline-block', flexShrink:0 }}
+                            />
+                            {/* 備註輸入 */}
+                            <input
+                              value={completedNotes[key] || ''}
+                              onChange={e => updateCompletedNote(activeMonth, item.id, e.target.value)}
+                              placeholder="備註…"
+                              maxLength={20}
+                              style={{ background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.35)', color:'#fff', fontSize:11.5, width: Math.max(44, ((completedNotes[key] || '').length + 1) * 12), fontFamily:'Georgia,serif', padding:'1px 2px', outline:'none' }}
+                            />
+                            {/* 色盤 */}
+                            {isPickerOpen && (
+                              <div style={{ position:'absolute', top:32, left:0, background:'#fff', borderRadius:10, padding:'10px', boxShadow:'0 4px 20px rgba(0,0,0,0.18)', display:'flex', gap:7, flexWrap:'wrap', width:164, zIndex:100 }}>
+                                {COLORS.map(({ c, label }) => (
+                                  <div key={c} onClick={() => updateHeartColor(activeMonth, item.id, c)}
+                                    title={label}
+                                    style={{ width:22, height:22, borderRadius:'50%', background:c, border: heartColor===c ? '2px solid #333' : '1px solid #ddd', cursor:'pointer', transition:'transform 0.1s' }}
+                                  />
+                                ))}
+                              </div>
+                            )}
                           </div>
-                          <input
-                            value={completedNotes[`${activeMonth}-${item.id}`] || ''}
-                            onChange={e => updateCompletedNote(activeMonth, item.id, e.target.value)}
-                            placeholder="備註…"
-                            maxLength={20}
-                            style={{ background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.3)', color:'#fff', fontSize:11.5, width:60, fontFamily:'Georgia,serif', padding:'1px 2px' }}
-                          />
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   )}
                 </div>
