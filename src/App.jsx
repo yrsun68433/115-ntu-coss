@@ -1,4 +1,23 @@
 import { useState, useEffect, useRef } from 'react'
+
+function ZebraHeart({ size = 20 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{ flexShrink:0 }}>
+      <defs>
+        <pattern id="zp" patternUnits="userSpaceOnUse" width="14" height="14" patternTransform="rotate(45)">
+          <rect width="7" height="14" fill="#1a1a1a" />
+          <rect x="7" width="7" height="14" fill="#f0f0f0" />
+        </pattern>
+        <clipPath id="zc">
+          <path d="M50 85 C50 85 10 60 10 35 C10 20 20 10 35 10 C42 10 48 14 50 18 C52 14 58 10 65 10 C80 10 90 20 90 35 C90 60 50 85 50 85Z" />
+        </clipPath>
+      </defs>
+      <rect width="100" height="100" fill="url(#zp)" clipPath="url(#zc)" />
+      <path d="M50 85 C50 85 10 60 10 35 C10 20 20 10 35 10 C42 10 48 14 50 18 C52 14 58 10 65 10 C80 10 90 20 90 35 C90 60 50 85 50 85Z"
+        fill="none" stroke="#1a1a1a" strokeWidth="3" />
+    </svg>
+  )
+}
 import { storageGet, storageSet } from './storage'
 import { BUDGET, MONTHS, initBudgetState } from './data'
 import { supabase } from './supabase'
@@ -88,6 +107,7 @@ export default function App() {
   const [activeTab, setActiveTab]         = useState('work')
   const [activeMonth, setActiveMonth]     = useState(null)
   const [editingNote, setEditingNote]     = useState(null)
+  const [completedNotes, setCompletedNotes] = useState({})
   const [editingBudgetNote, setEditingBudgetNote] = useState(null)
   const [saving, setSaving]               = useState(false)
   const [justSaved, setJustSaved]         = useState(false)
@@ -176,6 +196,10 @@ export default function App() {
   function commitNote() {
     setEditingNote(null)
     persist(sections, budgetState, freeNote)
+  }
+
+  function updateCompletedNote(monthId, itemId, val) {
+    setCompletedNotes(prev => ({ ...prev, [`${monthId}-${itemId}`]: val }))
   }
 
   // ── 預算操作 ─────────────────────────────────────────────────────────────────
@@ -300,12 +324,36 @@ export default function App() {
             {activeData && activeOriginal ? (
               <div style={{ animation:'fadeIn 0.18s ease' }}>
                 {/* 標題 */}
-                <div style={{ background:activeOriginal.color, color:'#fff', borderRadius:'10px 10px 0 0', padding:'18px 24px 14px', display:'flex', alignItems:'flex-end', justifyContent:'space-between' }}>
-                  <div>
-                    <div style={{ fontSize:10, letterSpacing:'0.18em', opacity:0.75, fontFamily:'monospace', marginBottom:3 }}>{activeOriginal.sub || '工作事項'}</div>
-                    <div style={{ fontSize:24, fontWeight:'bold' }}>{activeOriginal.label}</div>
+                <div style={{ background:activeOriginal.color, color:'#fff', borderRadius:'10px 10px 0 0', padding:'18px 24px 14px' }}>
+                  <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginBottom: activeData.items.some(i=>i.done) ? 12 : 0 }}>
+                    <div>
+                      <div style={{ fontSize:10, letterSpacing:'0.18em', opacity:0.75, fontFamily:'monospace', marginBottom:3 }}>{activeOriginal.sub || '工作事項'}</div>
+                      <div style={{ fontSize:24, fontWeight:'bold' }}>{activeOriginal.label}</div>
+                    </div>
+                    <div style={{ fontFamily:'monospace', fontSize:12, opacity:0.85 }}>{activeData.items.filter(i=>i.done).length} / {activeData.items.length} 完成</div>
                   </div>
-                  <div style={{ fontFamily:'monospace', fontSize:12, opacity:0.85 }}>{activeData.items.filter(i=>i.done).length} / {activeData.items.length} 完成</div>
+                  {/* 已完成：斑馬心 */}
+                  {activeData.items.some(i=>i.done) && (
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:8, paddingTop:10, borderTop:'1px solid rgba(255,255,255,0.2)' }}>
+                      {activeData.items.filter(i=>i.done).map(item => (
+                        <div key={item.id}
+                          style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.14)', borderRadius:20, padding:'4px 10px 4px 6px' }}
+                          title="點愛心取消完成"
+                        >
+                          <div onClick={() => toggleDone(activeMonth, item.id)} style={{ cursor:'pointer', display:'flex', alignItems:'center' }}>
+                            <ZebraHeart size={18} />
+                          </div>
+                          <input
+                            value={completedNotes[`${activeMonth}-${item.id}`] || ''}
+                            onChange={e => updateCompletedNote(activeMonth, item.id, e.target.value)}
+                            placeholder="備註…"
+                            maxLength={20}
+                            style={{ background:'transparent', border:'none', borderBottom:'1px solid rgba(255,255,255,0.3)', color:'#fff', fontSize:11.5, width:60, fontFamily:'Georgia,serif', padding:'1px 2px' }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {/* Deadline 標籤列 */}
                 {DEADLINES[activeMonth] && DEADLINES[activeMonth].length > 0 && (
@@ -320,10 +368,16 @@ export default function App() {
                 )}
                 {/* 項目 */}
                 <div style={{ background:'#fff', borderRadius:'0 0 10px 10px', border:`1px solid ${activeOriginal.color}44`, borderTop:'none' }}>
-                  {activeData.items.map((item, idx) => {
+                  {activeData.items.filter(i => !i.done).length === 0 && (
+                    <div style={{ padding:'28px', textAlign:'center', color:'#bbb', fontSize:13, fontStyle:'italic', borderRadius:'0 0 10px 10px' }}>
+                      所有事項已完成
+                    </div>
+                  )}
+                  {activeData.items.filter(i => !i.done).map((item, idx) => {
+                    const todoItems = activeData.items.filter(i => !i.done)
                     const isEd = editingNote?.monthId === activeMonth && editingNote?.itemId === item.id
                     return (
-                      <div key={item.id} style={{ padding:'16px 22px', borderBottom: idx < activeData.items.length-1 ? '1px solid #f0ede8' : 'none', background: item.done ? '#fafaf8' : '#fff', borderRadius: idx === activeData.items.length-1 ? '0 0 10px 10px' : 0 }}>
+                      <div key={item.id} style={{ padding:'16px 22px', borderBottom: idx < todoItems.length-1 ? '1px solid #f0ede8' : 'none', background:'#fff', borderRadius: idx === todoItems.length-1 ? '0 0 10px 10px' : 0 }}>
                         <div style={{ display:'flex', gap:12, alignItems:'flex-start' }}>
                           <button onClick={() => toggleDone(activeMonth, item.id)} style={{ width:20, height:20, borderRadius:4, flexShrink:0, marginTop:3, border: item.done ? 'none' : `2px solid ${activeOriginal.color}77`, background: item.done ? activeOriginal.color : 'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', transition:'all 0.15s' }}>
                             {item.done && <svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>}
