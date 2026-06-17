@@ -368,7 +368,7 @@ export default function App() {
                               onChange={e => updateCompletedNote(activeMonth, item.id, e.target.value)}
                               placeholder="備註…"
                               maxLength={20}
-                              style={{ background:'transparent', border:'none', borderBottom: completedNotes[key] ? '1px solid rgba(255,255,255,0.35)' : 'none', color:'#fff', fontSize:11.5, width: completedNotes[key] ? `${(completedNotes[key].length + 1) * 12}px` : '44px', minWidth:0, maxWidth:160, fontFamily:'Georgia,serif', padding:'1px 2px', outline:'none' }}
+                              style={{ background:'transparent', border:'none', borderBottom: completedNotes[key] ? '1px solid rgba(255,255,255,0.35)' : 'none', color:'#fff', fontSize:11.5, width: completedNotes[key] ? `${Math.min(160, (completedNotes[key].length + 1) * 14)}px` : '4px', minWidth:0, fontFamily:'Georgia,serif', padding:'1px 2px', outline:'none' }}
                             />
                             {/* 色盤 */}
                             {isPickerOpen && (
