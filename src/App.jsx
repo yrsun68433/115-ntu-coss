@@ -252,7 +252,7 @@ export default function App() {
           </div>
         </div>
         <div style={{ display:'flex', gap:4 }}>
-          {[['work','工作時程'],['budget','預算控管']].map(([key, label]) => (
+          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸']].map(([key, label]) => (
             <button key={key} onClick={() => { setActiveTab(key); setActiveMonth(null) }}
               style={{ padding:'6px 18px', fontSize:12, fontFamily:'Georgia,serif', background: activeTab===key ? '#f2ede6' : 'transparent', color: activeTab===key ? '#1c1c1c' : '#888', border:'1px solid', borderColor: activeTab===key ? '#f2ede6' : '#444', borderRadius:'4px 4px 0 0', cursor:'pointer', letterSpacing:'0.04em' }}>
               {label}
@@ -369,6 +369,94 @@ export default function App() {
                 <textarea value={freeNote} onChange={e => setFreeNote(e.target.value)} onBlur={e => persist(sections, budgetState, e.target.value)} placeholder="隨時記錄其他事項、追蹤中的對話、想法…" style={{ width:'100%', minHeight:90, border:'1px solid #e0dbd4', borderRadius:6, padding:'9px 11px', fontSize:13, fontFamily:'Georgia,serif', color:'#333', resize:'vertical', background:'#fdfcfa', boxSizing:'border-box', outline:'none', lineHeight:1.6 }} />
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ════════════════ 時間軸 ════════════════ */}
+      {activeTab === 'timeline' && (
+        <div style={{ display:'flex', flex:1, minHeight:0 }}>
+          {/* 左側月份導覽 */}
+          <div style={{ width:110, flexShrink:0, overflowY:'auto', padding:'16px 10px', display:'flex', flexDirection:'column', gap:6, borderRight:'1px solid #e0dbd4', background:'#ece8e1' }}>
+            {[
+              { id:'now', label:'六月', color:'#b5451b' },
+              { id:'july', label:'七月', color:'#c47c1a' },
+              { id:'august', label:'八月', color:'#5a7a3a' },
+              { id:'sept', label:'九月', color:'#2e6b8a' },
+              { id:'oct', label:'十月', color:'#5a3a8a' },
+              { id:'nov', label:'十一月', color:'#8a3a5a' },
+              { id:'dec', label:'十二月', color:'#b5451b' },
+              { id:'jan', label:'一月', color:'#2e6b5a' },
+            ].map(m => (
+              <a key={m.id} href={`#tl-${m.id}`}
+                style={{ display:'block', padding:'7px 10px', borderRadius:6, fontSize:13, fontWeight:'bold', color: m.color, background:'#fff', border:`1px solid ${m.color}44`, textDecoration:'none', textAlign:'center', transition:'all 0.15s' }}
+                onMouseEnter={e => { e.target.style.background=m.color; e.target.style.color='#fff'; }}
+                onMouseLeave={e => { e.target.style.background='#fff'; e.target.style.color=m.color; }}
+              >{m.label}</a>
+            ))}
+          </div>
+
+          {/* 右側時間軸 */}
+          <div style={{ flex:1, overflowY:'auto', padding:'20px 28px 60px' }}>
+            {/* 圖例 */}
+            <div style={{ display:'flex', gap:16, marginBottom:24, flexWrap:'wrap', alignItems:'center' }}>
+              <span style={{ fontSize:11, color:'#999' }}>分類：</span>
+              {[
+                { color:'#2e6b8a', label:'院學士' },
+                { color:'#8B5E3C', label:'東亞學程' },
+                { color:'#4a7c59', label:'學程' },
+                { color:'#666', label:'學校行事曆' },
+              ].map(c => (
+                <span key={c.label} style={{ display:'flex', alignItems:'center', gap:5, fontSize:11 }}>
+                  <span style={{ width:8, height:8, borderRadius:'50%', background:c.color, display:'inline-block' }} />
+                  <span style={{ color:'#555' }}>{c.label}</span>
+                </span>
+              ))}
+            </div>
+
+            {/* 各月時間軸 */}
+            {[
+              { id:'now', label:'六月', color:'#b5451b' },
+              { id:'july', label:'七月', color:'#c47c1a' },
+              { id:'august', label:'八月', color:'#5a7a3a' },
+              { id:'sept', label:'九月', color:'#2e6b8a' },
+              { id:'oct', label:'十月', color:'#5a3a8a' },
+              { id:'nov', label:'十一月', color:'#8a3a5a' },
+              { id:'dec', label:'十二月', color:'#b5451b' },
+              { id:'jan', label:'一月', color:'#2e6b5a' },
+            ].map(m => {
+              const items = DEADLINES[m.id] || [];
+              return (
+                <div key={m.id} id={`tl-${m.id}`} style={{ marginBottom:36 }}>
+                  {/* 月份標題 */}
+                  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+                    <div style={{ width:12, height:12, borderRadius:'50%', background:m.color, flexShrink:0 }} />
+                    <div style={{ fontSize:18, fontWeight:'bold', color:m.color }}>{m.label}</div>
+                    <div style={{ flex:1, height:1, background:`${m.color}33` }} />
+                    <div style={{ fontSize:11, color:'#bbb', fontFamily:'monospace' }}>{items.length} 件</div>
+                  </div>
+
+                  {/* 時間點 */}
+                  <div style={{ marginLeft:22, borderLeft:`2px solid ${m.color}22`, paddingLeft:18 }}>
+                    {items.map((item, idx) => (
+                      <div key={idx} style={{
+                        display:'flex', alignItems:'center', gap:14,
+                        padding:'9px 0',
+                        borderBottom: idx < items.length-1 ? '1px solid #f0ede8' : 'none',
+                      }}>
+                        <div style={{ width:6, height:6, borderRadius:'50%', background:item.color, flexShrink:0, marginLeft:-22, marginRight:16 }} />
+                        <div style={{ minWidth:80, fontSize:12, fontWeight:'bold', fontFamily:'monospace', color:item.color, flexShrink:0 }}>
+                          {item.date}
+                        </div>
+                        <div style={{ fontSize:13.5, color:'#1c1c1c', flex:1 }}>
+                          {item.label}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
