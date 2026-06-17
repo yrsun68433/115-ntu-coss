@@ -1,23 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 
-function ZebraHeart({ size = 20 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" style={{ flexShrink:0 }}>
-      <defs>
-        <pattern id="zp" patternUnits="userSpaceOnUse" width="14" height="14" patternTransform="rotate(45)">
-          <rect width="7" height="14" fill="#1a1a1a" />
-          <rect x="7" width="7" height="14" fill="#f0f0f0" />
-        </pattern>
-        <clipPath id="zc">
-          <path d="M50 85 C50 85 10 60 10 35 C10 20 20 10 35 10 C42 10 48 14 50 18 C52 14 58 10 65 10 C80 10 90 20 90 35 C90 60 50 85 50 85Z" />
-        </clipPath>
-      </defs>
-      <rect width="100" height="100" fill="url(#zp)" clipPath="url(#zc)" />
-      <path d="M50 85 C50 85 10 60 10 35 C10 20 20 10 35 10 C42 10 48 14 50 18 C52 14 58 10 65 10 C80 10 90 20 90 35 C90 60 50 85 50 85Z"
-        fill="none" stroke="#1a1a1a" strokeWidth="3" />
-    </svg>
-  )
-}
+
 import { storageGet, storageSet } from './storage'
 import { BUDGET, MONTHS, initBudgetState } from './data'
 import { supabase } from './supabase'
@@ -340,8 +323,8 @@ export default function App() {
                           style={{ display:'flex', alignItems:'center', gap:6, background:'rgba(255,255,255,0.14)', borderRadius:20, padding:'4px 10px 4px 6px' }}
                           title="點愛心取消完成"
                         >
-                          <div onClick={() => toggleDone(activeMonth, item.id)} style={{ cursor:'pointer', display:'flex', alignItems:'center' }}>
-                            <ZebraHeart size={18} />
+                          <div onClick={() => toggleDone(activeMonth, item.id)} style={{ cursor:'pointer', fontSize:16, lineHeight:1, userSelect:'none' }}>
+                            ♥
                           </div>
                           <input
                             value={completedNotes[`${activeMonth}-${item.id}`] || ''}
