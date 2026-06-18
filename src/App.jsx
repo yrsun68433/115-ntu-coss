@@ -274,7 +274,7 @@ export default function App() {
           </div>
         </div>
         <div style={{ display:'flex', gap:4 }}>
-          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸']].map(([key, label]) => (
+          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸'],['contacts','通訊錄']].map(([key, label]) => (
             <button key={key} onClick={() => { setActiveTab(key); setActiveMonth(null) }}
               style={{ padding:'6px 18px', fontSize:12, fontFamily:'Georgia,serif', background: activeTab===key ? '#f2ede6' : 'transparent', color: activeTab===key ? '#1c1c1c' : '#888', border:'1px solid', borderColor: activeTab===key ? '#f2ede6' : '#444', borderRadius:'4px 4px 0 0', cursor:'pointer', letterSpacing:'0.04em' }}>
               {label}
@@ -544,6 +544,115 @@ export default function App() {
               );
             })}
           </div>
+        </div>
+      )}
+
+      {/* ════════════════ 通訊錄 ════════════════ */}
+      {activeTab === 'contacts' && (
+        <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
+
+          {/* ── 院學士學生 ── */}
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
+              院學士學位學程 在學學生
+            </div>
+
+            {/* 113 */}
+            <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b', margin:'16px 0 8px' }}>
+              113學年度入學（共16人）
+            </div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+              {[
+                'B11302212','B11303023','B11303039','B11303042','B11303063','B11310013',
+                'B12302252','B12302259','B12302350','B12303002','B12303054','B12303136',
+                'B12305017','B12305039','B12305049','B12310049',
+              ].map(id => (
+                <a key={id} href={`mailto:${id}@ntu.edu.tw`}
+                  style={{ fontSize:12, color:'#2e6b8a', background:'#cce3ef44', border:'1px solid #2e6b8a44', borderRadius:4, padding:'4px 8px', textDecoration:'none', fontFamily:'monospace' }}>
+                  {id}
+                </a>
+              ))}
+            </div>
+
+            {/* 114 */}
+            <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b', margin:'16px 0 8px' }}>
+              114學年度入學（共29人）
+            </div>
+            <div style={{ display:'flex', flexWrap:'wrap', gap:6 }}>
+              {[
+                'B11302211','B11305035','B11305043','B11310045','B11H04006',
+                'B12302144','B12302147','B12302152','B12302314','B12303010',
+                'B12303122','B12305003','B12305019','B12305025','B12305040',
+                'B12702083','B12702097','B12703015','B12801022','B13302107',
+                'B13302230','B13302308','B13302332','B13302342','B13303035',
+                'B13303056','B13303057','B13303062','B13303153',
+              ].map(id => (
+                <a key={id} href={`mailto:${id}@ntu.edu.tw`}
+                  style={{ fontSize:12, color:'#2e6b8a', background:'#cce3ef44', border:'1px solid #2e6b8a44', borderRadius:4, padding:'4px 8px', textDecoration:'none', fontFamily:'monospace' }}>
+                  {id}
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* ── 東亞學程委員會 ── */}
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:18, fontWeight:'bold', color:'#8B5E3C', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #8B5E3C44' }}>
+              東亞研究學分學程 委員會
+            </div>
+            <div style={{ marginTop:12, background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+              {/* 表頭 */}
+              <div style={{ display:'grid', gridTemplateColumns:'180px 1fr', background:'#1c1c1c', padding:'8px 16px' }}>
+                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
+                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
+              </div>
+              {[
+                { name:'周嘉辰', note:'召集人', email:'chelseachou@ntu.edu.tw' },
+                { name:'蔡蕙如', note:'', email:'tsaihuiju@ntu.edu.tw' },
+                { name:'謝宛蓉', note:'', email:'wanjungh@ntu.edu.tw' },
+                { name:'賴建宇', note:'', email:'cyljason@ntu.edu.tw' },
+                { name:'李宥霆', note:'', email:'ytandylee@ntu.edu.tw' },
+                { name:'左正東', note:'', email:'ctso@ntu.edu.tw' },
+                { name:'王宏文', note:'', email:'hongwung@ntu.edu.tw' },
+                { name:'何明修', note:'', email:'msho@ntu.edu.tw' },
+              ].map((m, i) => (
+                <div key={m.email} style={{ display:'grid', gridTemplateColumns:'180px 1fr', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center' }}>
+                  <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
+                    {m.name}
+                    {m.note && <span style={{ fontSize:11, color:'#8B5E3C', marginLeft:6, background:'#f5e8cc', padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
+                  </div>
+                  <a href={`mailto:${m.email}`} style={{ fontSize:13, color:'#2e6b8a', textDecoration:'none', fontFamily:'monospace' }}>{m.email}</a>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── 中國大陸學程委員會 ── */}
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:18, fontWeight:'bold', color:'#4a7c59', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #4a7c5944' }}>
+              中國大陸研究學分學程 委員會
+            </div>
+            <div style={{ marginTop:12, background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'180px 1fr', background:'#1c1c1c', padding:'8px 16px' }}>
+                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
+                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
+              </div>
+              {[
+                { name:'蔡季廷', note:'召集人', email:'chiting@ntu.edu.tw' },
+                { name:'徐斯勤', note:'', email:'schsu01@ntu.edu.tw' },
+              ].map((m, i) => (
+                <div key={m.email} style={{ display:'grid', gridTemplateColumns:'180px 1fr', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center' }}>
+                  <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
+                    {m.name}
+                    {m.note && <span style={{ fontSize:11, color:'#4a7c59', marginLeft:6, background:'#deebd0', padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
+                  </div>
+                  <a href={`mailto:${m.email}`} style={{ fontSize:13, color:'#2e6b8a', textDecoration:'none', fontFamily:'monospace' }}>{m.email}</a>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div style={{ fontSize:11, color:'#bbb', fontStyle:'italic', textAlign:'right' }}>最後更新：115年6月</div>
         </div>
       )}
 
