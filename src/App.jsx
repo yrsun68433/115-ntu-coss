@@ -574,6 +574,10 @@ export default function App() {
           { name:'賴建宇', note:'', email:'cyljason@ntu.edu.tw' },
           { name:'洪晨碩', note:'', email:'cshong@ntu.edu.tw' },
         ]
+        const mentors = [
+          { name:'王道一', note:'113學年度導師', email:'josephw@ntu.edu.tw' },
+          { name:'張登及', note:'114學年度導師', email:'tchang@ntu.edu.tw' },
+        ]
         const eastAsiaCommittee = [
           { name:'周嘉辰', note:'召集人', email:'chelseachou@ntu.edu.tw' },
           { name:'蔡蕙如', note:'', email:'tsaihuiju@ntu.edu.tw' },
@@ -636,6 +640,36 @@ export default function App() {
               <CopyBtn emails={collegeCommittee.map(m=>m.email)} color="#b5451b" />
             </div>
             <CommitteeTable members={collegeCommittee} color="#b5451b" accent="#fde8e3" />
+          </div>
+
+          {/* ── 院學士導師 ── */}
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
+              院學士學位學程 導師
+            </div>
+            <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+              <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', background:'#1c1c1c', padding:'8px 16px', gap:12 }}>
+                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
+                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
+                <div />
+              </div>
+              {mentors.map((m, i) => {
+                const [copied, setCopied] = useState(false)
+                return (
+                  <div key={m.email} style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:12 }}>
+                    <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
+                      {m.name}
+                      {m.note && <span style={{ fontSize:10, color:'#b5451b', marginLeft:6, background:'#fde8e3', padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
+                    </div>
+                    <div style={{ fontSize:13, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(m.email); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
+                      style={{ fontSize:10, padding:'3px 8px', background: copied?'#27ae60':'#f0ede8', color: copied?'#fff':'#666', border:'none', borderRadius:3, cursor:'pointer', whiteSpace:'nowrap', transition:'background 0.2s' }}
+                    >{copied ? '✓' : '複製'}</button>
+                  </div>
+                )
+              })}
+            </div>
           </div>
 
           {/* ── 院學士學生 ── */}
