@@ -363,13 +363,13 @@ export default function App() {
                               style={{ width:8, height:8, borderRadius:'50%', background: heartColor, border:'1px solid rgba(255,255,255,0.5)', cursor:'pointer', display:'inline-block', flexShrink:0 }}
                             />
                             {/* 備註輸入 */}
-                            <input
-                              value={completedNotes[key] || ''}
-                              onChange={e => updateCompletedNote(activeMonth, item.id, e.target.value)}
-                              placeholder="備註…"
-                              maxLength={20}
-                              style={{ background:'transparent', border:'none', borderBottom: completedNotes[key] ? '1px solid rgba(255,255,255,0.35)' : 'none', color:'#fff', fontSize:11.5, width: completedNotes[key] ? `${Math.min(160, (completedNotes[key].length + 1) * 14)}px` : '4px', minWidth:0, fontFamily:'Georgia,serif', padding:'1px 2px', outline:'none' }}
-                            />
+                            <span
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={e => updateCompletedNote(activeMonth, item.id, e.currentTarget.textContent)}
+                              style={{ display:'inline-block', minWidth:8, maxWidth:160, fontSize:11.5, color:'#fff', fontFamily:'Georgia,serif', outline:'none', borderBottom: completedNotes[key] ? '1px solid rgba(255,255,255,0.35)' : '1px solid rgba(255,255,255,0.15)', padding:'1px 2px', whiteSpace:'nowrap', cursor:'text', lineHeight:1.5 }}
+                              data-placeholder="備註"
+                            >{completedNotes[key] || ''}</span>
                             {/* 色盤 */}
                             {isPickerOpen && (
                               <div style={{ position:'absolute', top:32, left:0, background:'#fff', borderRadius:10, padding:'10px', boxShadow:'0 4px 20px rgba(0,0,0,0.18)', display:'flex', gap:7, flexWrap:'wrap', width:164, zIndex:100 }}>
