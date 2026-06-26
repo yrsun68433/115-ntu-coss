@@ -266,10 +266,11 @@ function MentorContent({ mentors, onAdd, onRemove }) {
 }
 
 // ── 學生內容 ──────────────────────────────────────────────────────────────────
-function StudentContent({ students113, students114, onMarkLeft, onRestoreLeft }) {
+function StudentContent({ cohort, students113, students114, onMarkLeft, onRestoreLeft }) {
   const [leaveTarget, setLeaveTarget] = useState(null)
-  const [showLeft113, setShowLeft113] = useState(false)
-  const [showLeft114, setShowLeft114] = useState(false)
+  const [showLeft, setShowLeft] = useState(false)
+  const students = cohort === '113' ? students113 : students114
+  const color = cohort === '113' ? '#b5451b' : '#2e6b8a'
 
   function StudentTable({ students, showLeft, setShowLeft, cohort, color }) {
     const active = students.filter(s=>!s.left)
@@ -333,8 +334,7 @@ function StudentContent({ students113, students114, onMarkLeft, onRestoreLeft })
           onCancel={() => setLeaveTarget(null)}
         />
       )}
-      <StudentTable students={students113} showLeft={showLeft113} setShowLeft={setShowLeft113} cohort="113" color="#b5451b" />
-      <StudentTable students={students114} showLeft={showLeft114} setShowLeft={setShowLeft114} cohort="114" color="#2e6b8a" />
+      <StudentTable students={students} showLeft={showLeft} setShowLeft={setShowLeft} cohort={cohort} color={color} />
     </div>
   )
 }
@@ -412,7 +412,10 @@ export default function Contacts() {
           {open==='mentor' && <MentorContent mentors={data.mentors}
             onAdd={m=>updateList('mentors',[...data.mentors,m])}
             onRemove={id=>updateList('mentors',data.mentors.filter(m=>m.id!==id))} />}
-          {(open==='s113'||open==='s114') && <StudentContent
+          {open==='s113' && <StudentContent cohort="113"
+            students113={data.students113} students114={data.students114}
+            onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
+          {open==='s114' && <StudentContent cohort="114"
             students113={data.students113} students114={data.students114}
             onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
           {open==='east' && <CommitteeContent color="#8B5E3C" accent="#f5e8cc" members={data.eastAsia}
