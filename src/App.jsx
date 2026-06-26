@@ -408,6 +408,7 @@ export default function App() {
   const [editingNote, setEditingNote]     = useState(null)
   const [completedNotes, setCompletedNotes] = useState({})
   const [statusData, setStatusData] = useState({})
+  const [currentYear, setCurrentYear] = useState(115)
   const [heartColors, setHeartColors] = useState({})
   const [colorPickerOpen, setColorPickerOpen] = useState(null)
   const [editingBudgetNote, setEditingBudgetNote] = useState(null)
@@ -453,6 +454,7 @@ export default function App() {
           if (saved.completedNotes) setCompletedNotes(saved.completedNotes)
           if (saved.heartColors) setHeartColors(saved.heartColors)
           if (saved.statusData) setStatusData(saved.statusData)
+          if (saved.currentYear) setCurrentYear(saved.currentYear)
         } else {
           setSections(deepClone(MONTHS))
           setBudgetState(initBudgetState())
@@ -479,7 +481,7 @@ export default function App() {
     const _hc = hc !== undefined ? hc : heartColors
     const _sd = sd !== undefined ? sd : statusData
     try {
-      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, statusData: _sd, updatedAt: new Date().toISOString() })
+      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, statusData: _sd, currentYear, updatedAt: new Date().toISOString() })
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 1800)
     } catch(e) { console.error('存檔失敗', e) }
@@ -871,28 +873,142 @@ export default function App() {
       {activeTab === 'contacts' && <Contacts />}
 
       {/* ════════════════ 修習狀態 ════════════════ */}
-      {activeTab === 'status' && (
-        <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
-          <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-              113學年度　共 {COHORT_113.length} 人
+      {activeTab === 'status' && (() => {
+        const COHORTS = [
+          { key:'113', data: COHORT_113, color:'#b5451b', accent:'#f0d5cc' },
+          { key:'114', data: COHORT_114, color:'#2e6b8a', accent:'#cce3ef' },
+        ]
+        // 計算各屆目前年級
+        function calcGrade(entryYear, grade0) {
+          return grade0 + (currentYear - (entryYear + grade0 - 1))
+        }
+        // 各狀態統計
+        const STATUS_OPTIONS = ['正常修習', '延修', '休學', '放棄', '畢業', '待確認']
+        const STATUS_COLORS = { '正常修習':'#27ae60', '延修':'#c47c1a', '休學':'#8a3a5a', '放棄':'#b5451b', '畢業':'#2e6b8a', '待確認':'#888' }
+        const allStudents = [...COHORT_113, ...COHORT_114]
+        const statusCount = {}
+        STATUS_OPTIONS.forEach(o => { statusCount[o] = 0 })
+        allStudents.forEach(s => {
+          const st = statusData[`status-${s.id}`] !== undefined ? statusData[`status-${s.id}`] : (s.defaultStatus || '正常修習')
+          statusCount[st] = (statusCount[st] || 0) + 1
+        })
+        const totalActive = (statusCount['正常修習'] || 0) + (statusCount['延修'] || 0) + (statusCount['休學'] || 0)
+
+        return (
+          <div style={{ flex:1, overflowY:'auto', padding:'20px 24px 60px' }}>
+
+            {/* ── 頂部：學年度設定 + 總覽 ── */}
+            <div style={{ display:'flex', gap:16, marginBottom:24, flexWrap:'wrap', alignItems:'stretch' }}>
+              {/* 學年度設定 */}
+              <div style={{ background:'#1c1c1c', color:'#f2ede6', borderRadius:10, padding:'16px 20px', minWidth:160, display:'flex', flexDirection:'column', justifyContent:'space-between' }}>
+                <div style={{ fontSize:10, letterSpacing:'0.15em', color:'#888', fontFamily:'monospace', marginBottom:8 }}>目前學年度</div>
+                <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+                  <button onClick={() => { const y = currentYear-1; setCurrentYear(y); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData) }}
+                    style={{ width:28, height:28, border:'1px solid #444', borderRadius:4, background:'transparent', color:'#f2ede6', cursor:'pointer', fontSize:16, lineHeight:1 }}>−</button>
+                  <div style={{ fontSize:28, fontWeight:'bold', fontFamily:'monospace', minWidth:50, textAlign:'center' }}>{currentYear}</div>
+                  <button onClick={() => { const y = currentYear+1; setCurrentYear(y); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData) }}
+                    style={{ width:28, height:28, border:'1px solid #444', borderRadius:4, background:'transparent', color:'#f2ede6', cursor:'pointer', fontSize:16, lineHeight:1 }}>＋</button>
+                </div>
+                <div style={{ fontSize:10, color:'#666', marginTop:8, fontFamily:'monospace' }}>年級自動換算</div>
+              </div>
+
+              {/* 總人數 */}
+              <div style={{ background:'#fff', border:'1px solid #e0dbd4', borderRadius:10, padding:'16px 20px', minWidth:140 }}>
+                <div style={{ fontSize:10, letterSpacing:'0.12em', color:'#888', fontFamily:'monospace', marginBottom:6 }}>總修讀人數</div>
+                <div style={{ fontSize:28, fontWeight:'bold', fontFamily:'monospace', color:'#1c1c1c' }}>{totalActive}</div>
+                <div style={{ fontSize:11, color:'#aaa', marginTop:6 }}>共 {allStudents.length} 人（含已離開）</div>
+              </div>
+
+              {/* 各狀態數字 */}
+              {STATUS_OPTIONS.map(opt => (
+                <div key={opt} style={{ background:'#fff', border:`1px solid ${STATUS_COLORS[opt]}44`, borderRadius:10, padding:'14px 18px', minWidth:90 }}>
+                  <div style={{ fontSize:9.5, letterSpacing:'0.1em', color: STATUS_COLORS[opt], fontFamily:'monospace', marginBottom:6 }}>{opt}</div>
+                  <div style={{ fontSize:26, fontWeight:'bold', fontFamily:'monospace', color: STATUS_COLORS[opt] }}>{statusCount[opt] || 0}</div>
+                </div>
+              ))}
             </div>
-            <CohortTable students={COHORT_113}
-              persist={persist} sections={sections} budgetState={budgetState}
-              freeNote={freeNote} completedNotes={completedNotes} heartColors={heartColors}
-              statusData={statusData} setStatusData={setStatusData} />
-          </div>
-          <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:18, fontWeight:'bold', color:'#2e6b8a', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #2e6b8a44' }}>
-              114學年度　共 {COHORT_114.length} 人
+
+            {/* ── 各屆並置兩欄 ── */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+              {COHORTS.map(({ key, data, color, accent }) => {
+                const active = data.filter(s => {
+                  const st = statusData[`status-${s.id}`] !== undefined ? statusData[`status-${s.id}`] : (s.defaultStatus || '正常修習')
+                  return !['放棄','畢業'].includes(st)
+                }).length
+                return (
+                  <div key={key} style={{ background:'#fff', borderRadius:10, border:`1px solid ${color}33`, overflow:'hidden' }}>
+                    {/* 屆別標題 */}
+                    <div style={{ background:color, padding:'12px 18px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                      <div style={{ color:'#fff', fontWeight:'bold', fontSize:16 }}>{key}學年度入學</div>
+                      <div style={{ color:'rgba(255,255,255,0.8)', fontSize:12, fontFamily:'monospace' }}>在籍 {active}/{data.length}</div>
+                    </div>
+                    {/* 表頭 */}
+                    <div style={{ display:'grid', gridTemplateColumns:'64px 72px 1fr 90px', background:'#f5f2ee', padding:'6px 14px', gap:6, borderBottom:'1px solid #e8e5e0' }}>
+                      {['姓名','年級','就讀情形','狀態'].map(h => (
+                        <div key={h} style={{ fontSize:10.5, fontWeight:'bold', color:'#888' }}>{h}</div>
+                      ))}
+                    </div>
+                    {/* 學生列 */}
+                    {data.map((s, i) => {
+                      const stKey = `status-${s.id}`
+                      const noteKey = `status-note-${s.id}`
+                      const status = statusData[stKey] !== undefined ? statusData[stKey] : (s.defaultStatus || '正常修習')
+                      const note = statusData[noteKey] !== undefined ? statusData[noteKey] : (s.defaultNote || '')
+                      const stColor = STATUS_COLORS[status] || '#888'
+                      const currentGrade = s.year + (currentYear - s.year) - (s.grade - 1) + (s.grade - 1)
+                      // 入學年 = s.year，目前年級 = currentYear - s.year + 1
+                      const grade = currentYear - s.year + 1
+                      const isLeft = ['放棄','畢業'].includes(status)
+                      return (
+                        <div key={s.id} style={{ display:'grid', gridTemplateColumns:'64px 72px 1fr 90px', padding:'8px 14px', background: isLeft ? '#fafaf8' : (i%2===0?'#fff':'#f9f9f9'), borderTop:'1px solid #f0ede8', gap:6, alignItems:'center', opacity: isLeft ? 0.55 : 1 }}>
+                          <div style={{ fontSize:12.5, fontWeight:'bold', color:'#1c1c1c' }}>{s.name}</div>
+                          <div style={{ fontSize:11, color:'#666' }}>{grade}年級</div>
+                          <input
+                            value={note}
+                            onChange={e => {
+                              const next = { ...statusData, [noteKey]: e.target.value }
+                              setStatusData(next)
+                              persist(sections, budgetState, freeNote, completedNotes, heartColors, next)
+                            }}
+                            placeholder="備註…"
+                            style={{ fontSize:11, border:'none', borderBottom:'1px solid #e8e5e0', background:'transparent', outline:'none', color:'#555', fontFamily:'Georgia,serif', padding:'1px 3px', width:'100%' }}
+                          />
+                          <select
+                            value={status}
+                            onChange={async e => {
+                              const val = e.target.value
+                              const next = { ...statusData, [stKey]: val }
+                              setStatusData(next)
+                              persist(sections, budgetState, freeNote, completedNotes, heartColors, next)
+                              // 連動通訊錄
+                              try {
+                                const contacts = await storageGet('contacts_115')
+                                if (!contacts) return
+                                const cohortKey = s.year === 113 ? 'students113' : 'students114'
+                                const noteVal = next[noteKey] !== undefined ? next[noteKey] : (s.defaultNote || '')
+                                const updated = contacts[cohortKey].map(stu =>
+                                  stu.id !== s.id ? stu :
+                                  ['放棄','畢業'].includes(val)
+                                    ? { ...stu, left:true, leftReason: noteVal || val }
+                                    : { ...stu, left:false, leftReason:'' }
+                                )
+                                await storageSet('contacts_115', { ...contacts, [cohortKey]: updated })
+                              } catch(e) { console.error('通訊錄連動失敗', e) }
+                            }}
+                            style={{ fontSize:10.5, padding:'3px 4px', border:`1px solid ${stColor}`, borderRadius:4, color: stColor, background:'#fff', cursor:'pointer', fontFamily:'Georgia,serif' }}
+                          >
+                            {STATUS_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
+                          </select>
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })}
             </div>
-            <CohortTable students={COHORT_114}
-              persist={persist} sections={sections} budgetState={budgetState}
-              freeNote={freeNote} completedNotes={completedNotes} heartColors={heartColors}
-              statusData={statusData} setStatusData={setStatusData} />
           </div>
-        </div>
-      )}
+        )
+      })()}
 
             {/* ════════════════ 預算控管 ════════════════ */}
       {activeTab === 'budget' && (
