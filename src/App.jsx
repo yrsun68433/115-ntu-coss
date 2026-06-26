@@ -83,9 +83,39 @@ const DEADLINES = {
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)) }
 function fmt(n) { return n == null ? '—' : '＄' + n.toLocaleString() }
 
+function LeftStudents({ students }) {
+  const [open, setOpen] = React.useState(false)
+  return (
+    <div style={{ marginTop:8 }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ fontSize:11.5, color:'#999', background:'#f5f2ee', border:'1px solid #e0dbd4', borderRadius:4, padding:'4px 12px', cursor:'pointer', display:'flex', alignItems:'center', gap:6 }}>
+        <span>{open ? '▲' : '▼'}</span>
+        <span>已離開 {students.length} 人</span>
+      </button>
+      {open && (
+        <div style={{ marginTop:6, background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden', opacity:0.75 }}>
+          <div style={{ display:'grid', gridTemplateColumns:'80px 100px 160px 1fr', background:'#888', padding:'7px 16px', gap:8 }}>
+            {['學號','姓名','系所','狀態'].map(h => (
+              <div key={h} style={{ fontSize:11, fontWeight:'bold', color:'#fff' }}>{h}</div>
+            ))}
+          </div>
+          {students.map((s, i) => (
+            <div key={s.id} style={{ display:'grid', gridTemplateColumns:'80px 100px 160px 1fr', padding:'8px 16px', background: i%2===0 ? '#fafaf8' : '#f5f2ee', borderTop:'1px solid #f0ede8', gap:8, alignItems:'center' }}>
+              <div style={{ fontSize:11, color:'#aaa', fontFamily:'monospace' }}>{s.id}</div>
+              <div style={{ fontSize:13, color:'#999' }}>{s.name}</div>
+              <div style={{ fontSize:11.5, color:'#aaa' }}>{s.dept}</div>
+              <div style={{ fontSize:11.5, color:'#b5451b' }}>{s.reason}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function StatusRow({ s, i, stKey, noteKey, statusOptions, statusColors, persist, sections, budgetState, freeNote, completedNotes, heartColors, statusData, setStatusData }) {
-  const status = statusData[stKey] || '正常修習'
-  const note   = statusData[noteKey] || ''
+  const status = statusData[stKey] !== undefined ? statusData[stKey] : (s.defaultStatus || '正常修習')
+  const note   = statusData[noteKey] !== undefined ? statusData[noteKey] : (s.defaultNote || '')
   const color  = statusColors[status] || '#888'
 
   function update(key, val) {
@@ -600,12 +630,10 @@ export default function App() {
           )
         }
 
-        const students113 = [
-          // 政治系
+        const students113Active = [
           { id:'B12302252', name:'黃琦雯', dept:'政治系國關組', grade:3 },
           { id:'B12302259', name:'鄭沁哲', dept:'政治系國關組', grade:3 },
           { id:'B12302350', name:'詹明翰', dept:'政治系公行組', grade:3 },
-          // 經濟系
           { id:'B11302212', name:'蔡佑澤', dept:'經濟系', grade:4 },
           { id:'B11303023', name:'吳瑞家', dept:'經濟系', grade:4 },
           { id:'B11303039', name:'陳彥廷', dept:'經濟系', grade:4 },
@@ -613,15 +641,19 @@ export default function App() {
           { id:'B12303002', name:'郭秉豐', dept:'經濟系', grade:3 },
           { id:'B12303054', name:'袁承亨', dept:'經濟系', grade:3 },
           { id:'B12303136', name:'彭晨紘', dept:'經濟系', grade:3 },
-          // 社會系
           { id:'B12305017', name:'呂政陽', dept:'社會系', grade:3 },
           { id:'B12305039', name:'余承熹', dept:'社會系', grade:3 },
           { id:'B12305049', name:'陳亮勳', dept:'社會系', grade:3 },
-          // 社工系
           { id:'B12310049', name:'游佩軒', dept:'社工系', grade:3 },
         ]
-        const students114 = [
-          // 政治系
+        const students113Left = [
+          { id:'B11302337', name:'吳家杏', dept:'政治系公行組', grade:4, reason:'放棄（114-1）' },
+          { id:'B11302353', name:'盧子琳', dept:'政治系公行組', grade:4, reason:'放棄（114-1）' },
+          { id:'B11303063', name:'鄭學澤', dept:'經濟系', grade:4, reason:'放棄（114-1）' },
+          { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, reason:'畢業（114，首屆）' },
+        ]
+        const students113 = students113Active
+        const students114Active = [
           { id:'B13302107', name:'孫珮珈', dept:'政治系政論組', grade:2 },
           { id:'B12302144', name:'黃彩慈', dept:'政治系政論組', grade:3 },
           { id:'B13302230', name:'金柔旼', dept:'政治系國關組', grade:2 },
@@ -629,7 +661,6 @@ export default function App() {
           { id:'B13302308', name:'蔡佳芸', dept:'政治系公行組', grade:2 },
           { id:'B13302342', name:'褚芳妘', dept:'政治系公行組', grade:2 },
           { id:'B12302314', name:'陳麗庭', dept:'政治系公行組', grade:3 },
-          // 經濟系
           { id:'B13303035', name:'朱皓瑋', dept:'經濟系', grade:2 },
           { id:'B13303056', name:'黃冠予', dept:'經濟系', grade:2 },
           { id:'B13303057', name:'蔡睿燊', dept:'經濟系', grade:2 },
@@ -638,23 +669,24 @@ export default function App() {
           { id:'B12302147', name:'詹怡安', dept:'經濟系', grade:3 },
           { id:'B12303010', name:'林宜萱', dept:'經濟系', grade:3 },
           { id:'B12303122', name:'林冠廷', dept:'經濟系', grade:3 },
-          // 社會系
           { id:'B12305003', name:'高唯琮', dept:'社會系', grade:3 },
           { id:'B12305019', name:'李芸熏', dept:'社會系', grade:3 },
           { id:'B12305025', name:'張佳瑩', dept:'社會系', grade:3 },
           { id:'B12305040', name:'吳士宏', dept:'社會系', grade:3 },
           { id:'B11305035', name:'吳秉霖', dept:'社會系', grade:4 },
-          // 社工系
           { id:'B11310045', name:'林芷妤', dept:'社工系', grade:4 },
-          // 會計系
           { id:'B12702083', name:'徐苡茜', dept:'會計系', grade:3 },
           { id:'B12702097', name:'陳彥蓁', dept:'會計系', grade:3 },
           { id:'B11302211', name:'吳和華', dept:'會計系', grade:4 },
-          // 財金系
           { id:'B12703015', name:'楊政諺', dept:'財金系', grade:3 },
-          // 公衛系
           { id:'B12801022', name:'賴禾凱', dept:'公衛系', grade:3 },
         ]
+        const students114Left = [
+          { id:'B13302332', name:'張芷瑜', dept:'政治系公行組', grade:2, reason:'放棄（114-2，更換雙主修）' },
+          { id:'B11305043', name:'陳孝祤', dept:'社會系', grade:4, reason:'放棄（114-2）' },
+          { id:'B11H04006', name:'李　蕎', dept:'運動學士學程', grade:4, reason:'放棄（已轉入政治系）' },
+        ]
+        const students114 = students114Active
         const collegeCommittee = [
           { name:'洪貞玲', note:'召集人（副院長）', email:'clhung@ntu.edu.tw' },
           { name:'黃景沂', note:'', email:'chingihuang@ntu.edu.tw' },
@@ -777,16 +809,18 @@ export default function App() {
             </div>
 
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'16px 0 8px' }}>
-              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>113學年度入學（共16人）</div>
-              <CopyBtn emails={students113.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
+              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>113學年度在學（{students113Active.length}人）</div>
+              <CopyBtn emails={students113Active.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
             </div>
-            <StudentTable students={students113} />
+            <StudentTable students={students113Active} />
+            <LeftStudents students={students113Left} />
 
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'20px 0 8px' }}>
-              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>114學年度入學（共29人）</div>
-              <CopyBtn emails={students114.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
+              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>114學年度在學（{students114Active.length}人）</div>
+              <CopyBtn emails={students114Active.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
             </div>
-            <StudentTable students={students114} />
+            <StudentTable students={students114Active} />
+            <LeftStudents students={students114Left} />
           </div>
 
           {/* ── 東亞學程委員會 ── */}
@@ -818,16 +852,20 @@ export default function App() {
           { id:'B12302252', name:'黃琦雯', dept:'政治系國關組', grade:3, year:113 },
           { id:'B12302259', name:'鄭沁哲', dept:'政治系國關組', grade:3, year:113 },
           { id:'B12302350', name:'詹明翰', dept:'政治系公行組', grade:3, year:113 },
+          { id:'B11302337', name:'吳家杏', dept:'政治系公行組', grade:4, year:113, defaultStatus:'放棄', defaultNote:'114-1放棄' },
+          { id:'B11302353', name:'盧子琳', dept:'政治系公行組', grade:4, year:113, defaultStatus:'放棄', defaultNote:'114-1放棄' },
           { id:'B11302212', name:'蔡佑澤', dept:'經濟系', grade:4, year:113 },
           { id:'B11303023', name:'吳瑞家', dept:'經濟系', grade:4, year:113 },
           { id:'B11303039', name:'陳彥廷', dept:'經濟系', grade:4, year:113 },
           { id:'B11303042', name:'黃沛綺', dept:'經濟系', grade:4, year:113 },
+          { id:'B11303063', name:'鄭學澤', dept:'經濟系', grade:4, year:113, defaultStatus:'放棄', defaultNote:'114-1放棄' },
           { id:'B12303002', name:'郭秉豐', dept:'經濟系', grade:3, year:113 },
           { id:'B12303054', name:'袁承亨', dept:'經濟系', grade:3, year:113 },
           { id:'B12303136', name:'彭晨紘', dept:'經濟系', grade:3, year:113 },
           { id:'B12305017', name:'呂政陽', dept:'社會系', grade:3, year:113 },
           { id:'B12305039', name:'余承熹', dept:'社會系', grade:3, year:113 },
           { id:'B12305049', name:'陳亮勳', dept:'社會系', grade:3, year:113 },
+          { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, year:113, defaultStatus:'畢業', defaultNote:'114畢業（首屆）' },
           { id:'B12310049', name:'游佩軒', dept:'社工系', grade:3, year:113 },
         ]
         const cohort114 = [
@@ -836,6 +874,7 @@ export default function App() {
           { id:'B13302230', name:'金柔旼', dept:'政治系國關組', grade:2, year:114 },
           { id:'B12302152', name:'蕭博仁', dept:'政治系國關組', grade:3, year:114 },
           { id:'B13302308', name:'蔡佳芸', dept:'政治系公行組', grade:2, year:114 },
+          { id:'B13302332', name:'張芷瑜', dept:'政治系公行組', grade:2, year:114, defaultStatus:'放棄', defaultNote:'114-2放棄更換雙主修' },
           { id:'B13302342', name:'褚芳妘', dept:'政治系公行組', grade:2, year:114 },
           { id:'B12302314', name:'陳麗庭', dept:'政治系公行組', grade:3, year:114 },
           { id:'B13303035', name:'朱皓瑋', dept:'經濟系', grade:2, year:114 },
@@ -851,16 +890,18 @@ export default function App() {
           { id:'B12305025', name:'張佳瑩', dept:'社會系', grade:3, year:114 },
           { id:'B12305040', name:'吳士宏', dept:'社會系', grade:3, year:114 },
           { id:'B11305035', name:'吳秉霖', dept:'社會系', grade:4, year:114 },
+          { id:'B11305043', name:'陳孝祤', dept:'社會系', grade:4, year:114, defaultStatus:'放棄', defaultNote:'114-2放棄' },
           { id:'B11310045', name:'林芷妤', dept:'社工系', grade:4, year:114 },
           { id:'B12702083', name:'徐苡茜', dept:'會計系', grade:3, year:114 },
           { id:'B12702097', name:'陳彥蓁', dept:'會計系', grade:3, year:114 },
           { id:'B11302211', name:'吳和華', dept:'會計系', grade:4, year:114 },
           { id:'B12703015', name:'楊政諺', dept:'財金系', grade:3, year:114 },
           { id:'B12801022', name:'賴禾凱', dept:'公衛系', grade:3, year:114 },
+          { id:'B11H04006', name:'李　蕎', dept:'運動學士學程', grade:4, year:114, defaultStatus:'放棄', defaultNote:'已轉入政治系' },
         ]
 
-        const STATUS_OPTIONS = ['正常修習', '延修', '休學', '待確認']
-        const STATUS_COLORS = { '正常修習':'#27ae60', '延修':'#c47c1a', '休學':'#8a3a5a', '待確認':'#888' }
+        const STATUS_OPTIONS = ['正常修習', '延修', '休學', '放棄', '畢業', '待確認']
+        const STATUS_COLORS = { '正常修習':'#27ae60', '延修':'#c47c1a', '休學':'#8a3a5a', '放棄':'#b5451b', '畢業':'#2e6b8a', '待確認':'#888' }
 
         function CohortTable({ students, color, accent }) {
           return (
@@ -891,14 +932,14 @@ export default function App() {
             {/* 113 */}
             <div style={{ marginBottom:32 }}>
               <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-                113學年度　在學 {cohort113.length} 人
+                113學年度　共 {cohort113.length} 人
               </div>
               <CohortTable students={cohort113} color="#b5451b" accent="#fde8e3" />
             </div>
             {/* 114 */}
             <div style={{ marginBottom:32 }}>
               <div style={{ fontSize:18, fontWeight:'bold', color:'#2e6b8a', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #2e6b8a44' }}>
-                114學年度　在學 {cohort114.length} 人
+                114學年度　共 {cohort114.length} 人
               </div>
               <CohortTable students={cohort114} color="#2e6b8a" accent="#cce3ef" />
             </div>
