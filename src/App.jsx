@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { storageGet, storageSet } from './storage'
 import { BUDGET, MONTHS, initBudgetState } from './data'
 import { supabase } from './supabase'
+import Contacts from './Contacts'
 
 const DB_KEY = 'worklog_115'
 
@@ -571,7 +572,7 @@ export default function App() {
           </div>
         </div>
         <div style={{ display:'flex', gap:4 }}>
-          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸'],['status','修習狀態']].map(([key, label]) => (
+          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸'],['contacts','通訊錄'],['status','修習狀態']].map(([key, label]) => (
             <button key={key} onClick={() => { setActiveTab(key); setActiveMonth(null) }}
               style={{ padding:'6px 18px', fontSize:12, fontFamily:'Georgia,serif', background: activeTab===key ? '#f2ede6' : 'transparent', color: activeTab===key ? '#1c1c1c' : '#888', border:'1px solid', borderColor: activeTab===key ? '#f2ede6' : '#444', borderRadius:'4px 4px 0 0', cursor:'pointer', letterSpacing:'0.04em' }}>
               {label}
@@ -845,7 +846,10 @@ export default function App() {
       )}
 
 
-            {/* ════════════════ 修習狀態 ════════════════ */}
+      {/* ════════════════ 通訊錄 ════════════════ */}
+      {activeTab === 'contacts' && <Contacts />}
+
+      {/* ════════════════ 修習狀態 ════════════════ */}
       {activeTab === 'status' && (
         <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
           <div style={{ marginBottom:32 }}>
