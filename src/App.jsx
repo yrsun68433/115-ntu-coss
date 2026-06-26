@@ -296,6 +296,23 @@ function CohortTable({ students, persist, sections, budgetState, freeNote, compl
 }
 
 
+function MentorRow({ m, i }) {
+  const [copied, setCopied] = React.useState(false)
+  return (
+    <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:12 }}>
+      <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
+        {m.name}
+        {m.note && <span style={{ fontSize:10, color:'#b5451b', marginLeft:6, background:'#fde8e3', padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
+      </div>
+      <div style={{ fontSize:13, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
+      <button
+        onClick={() => { navigator.clipboard.writeText(m.email); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
+        style={{ fontSize:10, padding:'3px 8px', background: copied?'#27ae60':'#f0ede8', color: copied?'#fff':'#666', border:'none', borderRadius:3, cursor:'pointer', whiteSpace:'nowrap', transition:'background 0.2s' }}
+      >{copied ? '✓' : '複製'}</button>
+    </div>
+  )
+}
+
 function LeftStudents({ students }) {
   const [open, setOpen] = React.useState(false)
   return (
