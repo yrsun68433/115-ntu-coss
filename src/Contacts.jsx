@@ -3,7 +3,6 @@ import { storageGet, storageSet } from './storage'
 
 const CONTACTS_KEY = 'contacts_115'
 
-// ── 靜態初始資料 ──────────────────────────────────────────────────────────────
 const INIT = {
   collegeCommittee: [
     { id:'cc1', name:'洪貞玲', note:'召集人（副院長）', email:'clhung@ntu.edu.tw' },
@@ -87,13 +86,13 @@ const INIT = {
 
 function uid() { return Math.random().toString(36).slice(2,8) }
 
-// ── 小元件 ────────────────────────────────────────────────────────────────────
+// ── 小工具 ────────────────────────────────────────────────────────────────────
 function CopyBtn({ emails, color }) {
   const [ok, setOk] = useState(false)
   return (
-    <button onClick={() => { navigator.clipboard.writeText(emails.join('; ')); setOk(true); setTimeout(()=>setOk(false),2000) }}
-      style={{ fontSize:11, padding:'4px 12px', border:'none', borderRadius:4, cursor:'pointer', flexShrink:0, background: ok?'#27ae60':color, color:'#fff', transition:'background 0.2s' }}>
-      {ok ? '✓ 已複製' : '複製全部 email'}
+    <button onClick={e => { e.stopPropagation(); navigator.clipboard.writeText(emails.join('; ')); setOk(true); setTimeout(()=>setOk(false),2000) }}
+      style={{ fontSize:10, padding:'3px 10px', border:'none', borderRadius:3, cursor:'pointer', background: ok?'#27ae60':color, color:'#fff', transition:'background 0.2s', whiteSpace:'nowrap' }}>
+      {ok ? '✓ 已複製' : '複製全部'}
     </button>
   )
 }
@@ -102,242 +101,240 @@ function SingleCopy({ email }) {
   const [ok, setOk] = useState(false)
   return (
     <button onClick={() => { navigator.clipboard.writeText(email); setOk(true); setTimeout(()=>setOk(false),2000) }}
-      style={{ fontSize:10, padding:'3px 8px', border:'none', borderRadius:3, cursor:'pointer', background: ok?'#27ae60':'#f0ede8', color: ok?'#fff':'#666', transition:'background 0.2s', whiteSpace:'nowrap' }}>
+      style={{ fontSize:10, padding:'2px 6px', border:'1px solid #eee', borderRadius:3, background: ok?'#27ae60':'#fff', color: ok?'#fff':'#aaa', cursor:'pointer', transition:'all 0.15s' }}>
       {ok ? '✓' : '複製'}
     </button>
   )
 }
 
-// ── 委員會區塊 ────────────────────────────────────────────────────────────────
-function CommitteeSection({ title, color, accent, members, onAdd, onRemove }) {
-  const [adding, setAdding] = useState(false)
-  const [form, setForm] = useState({ name:'', note:'', email:'' })
-
-  function handleAdd() {
-    if (!form.name || !form.email) return
-    onAdd({ id: uid(), ...form })
-    setForm({ name:'', note:'', email:'' })
-    setAdding(false)
-  }
-
-  return (
-    <div style={{ marginBottom:32 }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10, paddingBottom:8, borderBottom:`2px solid ${color}44` }}>
-        <div style={{ fontSize:18, fontWeight:'bold', color }}>{title}</div>
-        <div style={{ display:'flex', gap:8 }}>
-          <CopyBtn emails={members.map(m=>m.email)} color={color} />
-          <button onClick={() => setAdding(a=>!a)}
-            style={{ fontSize:13, width:28, height:28, border:`1px solid ${color}`, borderRadius:4, background:'#fff', color, cursor:'pointer', fontWeight:'bold' }}>
-            {adding ? '✕' : '+'}
-          </button>
-        </div>
-      </div>
-
-      {/* 新增表單 */}
-      {adding && (
-        <div style={{ background:`${accent}`, border:`1px solid ${color}44`, borderRadius:8, padding:'14px 16px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <label style={{ fontSize:11, color:'#666' }}>姓名 *</label>
-            <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="姓名"
-              style={{ fontSize:13, padding:'5px 8px', border:'1px solid #ddd', borderRadius:4, width:100, outline:'none' }} />
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <label style={{ fontSize:11, color:'#666' }}>備註</label>
-            <input value={form.note} onChange={e=>setForm(f=>({...f,note:e.target.value}))} placeholder="如：召集人"
-              style={{ fontSize:13, padding:'5px 8px', border:'1px solid #ddd', borderRadius:4, width:100, outline:'none' }} />
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <label style={{ fontSize:11, color:'#666' }}>Email *</label>
-            <input value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} placeholder="xxx@ntu.edu.tw"
-              style={{ fontSize:13, padding:'5px 8px', border:'1px solid #ddd', borderRadius:4, width:200, outline:'none' }} />
-          </div>
-          <button onClick={handleAdd}
-            style={{ fontSize:12, padding:'6px 16px', background:color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer', height:32 }}>
-            新增
-          </button>
-        </div>
-      )}
-
-      <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', background:'#1c1c1c', padding:'8px 16px', gap:8 }}>
-          <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
-          <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
-          <div />
-        </div>
-        {members.map((m, i) => (
-          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', padding:'10px 16px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
-            <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
-              {m.name}
-              {m.note && <span style={{ fontSize:10, color, marginLeft:6, background:accent, padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
-            </div>
-            <div style={{ fontSize:13, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
-            <div style={{ display:'flex', gap:6 }}>
-              <SingleCopy email={m.email} />
-              <button onClick={() => onRemove(m.id)}
-                style={{ fontSize:10, padding:'3px 6px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
-            </div>
-          </div>
-        ))}
-        {members.length === 0 && (
-          <div style={{ padding:'16px', textAlign:'center', color:'#bbb', fontSize:13, fontStyle:'italic' }}>尚無資料，點 + 新增</div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// ── 導師區塊 ──────────────────────────────────────────────────────────────────
-function MentorSection({ mentors, onAdd, onRemove }) {
-  const [adding, setAdding] = useState(false)
-  const [form, setForm] = useState({ name:'', note:'', email:'' })
-
-  function handleAdd() {
-    if (!form.name || !form.email) return
-    onAdd({ id: uid(), ...form })
-    setForm({ name:'', note:'', email:'' })
-    setAdding(false)
-  }
-
-  return (
-    <div style={{ marginBottom:32 }}>
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:10, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-        <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b' }}>院學士學位學程 導師</div>
-        <button onClick={() => setAdding(a=>!a)}
-          style={{ fontSize:13, width:28, height:28, border:'1px solid #b5451b', borderRadius:4, background:'#fff', color:'#b5451b', cursor:'pointer', fontWeight:'bold' }}>
-          {adding ? '✕' : '+'}
-        </button>
-      </div>
-      {adding && (
-        <div style={{ background:'#fde8e3', border:'1px solid #b5451b44', borderRadius:8, padding:'14px 16px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <label style={{ fontSize:11, color:'#666' }}>姓名 *</label>
-            <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="姓名"
-              style={{ fontSize:13, padding:'5px 8px', border:'1px solid #ddd', borderRadius:4, width:100, outline:'none' }} />
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <label style={{ fontSize:11, color:'#666' }}>備註</label>
-            <input value={form.note} onChange={e=>setForm(f=>({...f,note:e.target.value}))} placeholder="如：115學年度導師"
-              style={{ fontSize:13, padding:'5px 8px', border:'1px solid #ddd', borderRadius:4, width:140, outline:'none' }} />
-          </div>
-          <div style={{ display:'flex', flexDirection:'column', gap:4 }}>
-            <label style={{ fontSize:11, color:'#666' }}>Email *</label>
-            <input value={form.email} onChange={e=>setForm(f=>({...f,email:e.target.value}))} placeholder="xxx@ntu.edu.tw"
-              style={{ fontSize:13, padding:'5px 8px', border:'1px solid #ddd', borderRadius:4, width:200, outline:'none' }} />
-          </div>
-          <button onClick={handleAdd}
-            style={{ fontSize:12, padding:'6px 16px', background:'#b5451b', color:'#fff', border:'none', borderRadius:4, cursor:'pointer', height:32 }}>
-            新增
-          </button>
-        </div>
-      )}
-      <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', background:'#1c1c1c', padding:'8px 16px', gap:12 }}>
-          <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
-          <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
-          <div />
-        </div>
-        {mentors.map((m, i) => (
-          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', padding:'10px 16px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:12 }}>
-            <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
-              {m.name}
-              {m.note && <span style={{ fontSize:10, color:'#b5451b', marginLeft:6, background:'#fde8e3', padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
-            </div>
-            <div style={{ fontSize:13, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
-            <div style={{ display:'flex', gap:6 }}>
-              <SingleCopy email={m.email} />
-              <button onClick={() => onRemove(m.id)}
-                style={{ fontSize:10, padding:'3px 6px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ── 學生區塊 ──────────────────────────────────────────────────────────────────
+// ── 彈窗 ──────────────────────────────────────────────────────────────────────
 function LeaveModal({ student, onConfirm, onCancel }) {
   const [reason, setReason] = useState('')
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:999 }}>
-      <div style={{ background:'#fff', borderRadius:12, padding:'24px 28px', width:380, boxShadow:'0 8px 32px rgba(0,0,0,0.18)' }}>
-        <div style={{ fontSize:16, fontWeight:'bold', color:'#1c1c1c', marginBottom:4 }}>將 {student.name} 移至已離開</div>
-        <div style={{ fontSize:12, color:'#888', marginBottom:16 }}>請輸入離開原因（如：放棄、畢業、轉系等）</div>
+      <div style={{ background:'#fff', borderRadius:12, padding:'24px 28px', width:380, boxShadow:'0 8px 32px rgba(0,0,0,0.2)' }}>
+        <div style={{ fontSize:15, fontWeight:'bold', marginBottom:4 }}>將 {student.name} 移至已離開</div>
+        <div style={{ fontSize:12, color:'#888', marginBottom:14 }}>輸入離開原因</div>
         <input value={reason} onChange={e=>setReason(e.target.value)} placeholder="例：115-1放棄、畢業（115）"
+          autoFocus
           style={{ width:'100%', fontSize:13, padding:'8px 10px', border:'1px solid #ddd', borderRadius:6, outline:'none', boxSizing:'border-box', marginBottom:16 }} />
         <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
-          <button onClick={onCancel} style={{ fontSize:12, padding:'6px 16px', border:'1px solid #ddd', borderRadius:4, background:'#fff', color:'#666', cursor:'pointer' }}>取消</button>
-          <button onClick={() => onConfirm(reason)} style={{ fontSize:12, padding:'6px 16px', border:'none', borderRadius:4, background:'#b5451b', color:'#fff', cursor:'pointer' }}>確認移動</button>
+          <button onClick={onCancel} style={{ fontSize:12, padding:'6px 14px', border:'1px solid #ddd', borderRadius:4, background:'#fff', color:'#666', cursor:'pointer' }}>取消</button>
+          <button onClick={() => onConfirm(reason)} style={{ fontSize:12, padding:'6px 14px', border:'none', borderRadius:4, background:'#b5451b', color:'#fff', cursor:'pointer' }}>確認</button>
         </div>
       </div>
     </div>
   )
 }
 
-function StudentSection({ title, color, students, onMarkLeft, onRestoreLeft }) {
-  const [showLeft, setShowLeft] = useState(false)
-  const [leaveTarget, setLeaveTarget] = useState(null)
-  const active = students.filter(s => !s.left)
-  const left   = students.filter(s => s.left)
+// ── 卡片 ──────────────────────────────────────────────────────────────────────
+function Card({ id, label, sub, color, count, isOpen, onClick, children }) {
+  return (
+    <div style={{ marginBottom: isOpen ? 0 : 0 }}>
+      {/* 正方形卡片 */}
+      <button onClick={() => onClick(id)}
+        style={{
+          width:120, height:110,
+          background: isOpen ? color : '#fff',
+          color: isOpen ? '#fff' : '#1c1c1c',
+          border: `2px solid ${color}`,
+          borderRadius: isOpen ? '8px 8px 0 0' : 8,
+          cursor:'pointer', textAlign:'left',
+          padding:'12px 12px 10px',
+          display:'flex', flexDirection:'column', justifyContent:'space-between',
+          boxShadow: isOpen ? `0 4px 16px ${color}44` : '2px 3px 8px rgba(0,0,0,0.08)',
+          transition:'all 0.18s',
+          position:'relative',
+        }}>
+        <div>
+          <div style={{ fontSize:13, fontWeight:'bold', lineHeight:1.3 }}>{label}</div>
+          {sub && <div style={{ fontSize:10, opacity:0.65, marginTop:3 }}>{sub}</div>}
+        </div>
+        <div style={{ fontSize:11, opacity:0.7, fontFamily:'monospace' }}>{count}</div>
+        <div style={{ position:'absolute', top:7, right:9, fontSize:14, opacity:0.5 }}>{isOpen ? '▲' : '▼'}</div>
+      </button>
+    </div>
+  )
+}
+
+// ── 委員內容 ──────────────────────────────────────────────────────────────────
+function CommitteeContent({ color, accent, members, onAdd, onRemove }) {
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({ name:'', note:'', email:'' })
+
+  function handleAdd() {
+    if (!form.name || !form.email) return
+    onAdd({ id: uid(), ...form })
+    setForm({ name:'', note:'', email:'' })
+    setAdding(false)
+  }
 
   return (
-    <div style={{ marginBottom:20 }}>
+    <div>
+      <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginBottom:10 }}>
+        <CopyBtn emails={members.map(m=>m.email)} color={color} />
+        <button onClick={() => setAdding(a=>!a)}
+          style={{ fontSize:12, width:26, height:26, border:`1px solid ${color}`, borderRadius:4, background:'#fff', color, cursor:'pointer', fontWeight:'bold' }}>
+          {adding ? '✕' : '+'}
+        </button>
+      </div>
+      {adding && (
+        <div style={{ background:accent, border:`1px solid ${color}44`, borderRadius:8, padding:'12px 14px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
+          {[['姓名 *','name',100,'姓名'],['備註','note',100,'如：召集人'],['Email *','email',200,'xxx@ntu.edu.tw']].map(([label,key,w,ph]) => (
+            <div key={key} style={{ display:'flex', flexDirection:'column', gap:3 }}>
+              <label style={{ fontSize:10, color:'#666' }}>{label}</label>
+              <input value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))} placeholder={ph}
+                style={{ fontSize:12, padding:'4px 7px', border:'1px solid #ddd', borderRadius:4, width:w, outline:'none' }} />
+            </div>
+          ))}
+          <button onClick={handleAdd} style={{ fontSize:12, padding:'5px 14px', background:color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer', height:28 }}>新增</button>
+        </div>
+      )}
+      <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'150px 1fr auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
+          {['姓名','電子郵件',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+        </div>
+        {members.length === 0 && <div style={{ padding:'14px', textAlign:'center', color:'#bbb', fontSize:12, fontStyle:'italic' }}>尚無資料，點 + 新增</div>}
+        {members.map((m, i) => (
+          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'150px 1fr auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+            <div style={{ fontSize:13, color:'#1c1c1c' }}>
+              {m.name}
+              {m.note && <span style={{ fontSize:9.5, color, marginLeft:5, background:accent, padding:'1px 5px', borderRadius:3 }}>{m.note}</span>}
+            </div>
+            <div style={{ fontSize:12, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
+            <div style={{ display:'flex', gap:5 }}>
+              <SingleCopy email={m.email} />
+              <button onClick={() => onRemove(m.id)} style={{ fontSize:10, padding:'2px 5px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── 導師內容 ──────────────────────────────────────────────────────────────────
+function MentorContent({ mentors, onAdd, onRemove }) {
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({ name:'', note:'', email:'' })
+  function handleAdd() {
+    if (!form.name || !form.email) return
+    onAdd({ id: uid(), ...form })
+    setForm({ name:'', note:'', email:'' })
+    setAdding(false)
+  }
+  return (
+    <div>
+      <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginBottom:10 }}>
+        <button onClick={() => setAdding(a=>!a)}
+          style={{ fontSize:12, width:26, height:26, border:'1px solid #b5451b', borderRadius:4, background:'#fff', color:'#b5451b', cursor:'pointer', fontWeight:'bold' }}>
+          {adding ? '✕' : '+'}
+        </button>
+      </div>
+      {adding && (
+        <div style={{ background:'#fde8e3', border:'1px solid #b5451b44', borderRadius:8, padding:'12px 14px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
+          {[['姓名 *','name',100,'姓名'],['備註','note',140,'如：115學年度導師'],['Email *','email',200,'xxx@ntu.edu.tw']].map(([label,key,w,ph]) => (
+            <div key={key} style={{ display:'flex', flexDirection:'column', gap:3 }}>
+              <label style={{ fontSize:10, color:'#666' }}>{label}</label>
+              <input value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))} placeholder={ph}
+                style={{ fontSize:12, padding:'4px 7px', border:'1px solid #ddd', borderRadius:4, width:w, outline:'none' }} />
+            </div>
+          ))}
+          <button onClick={handleAdd} style={{ fontSize:12, padding:'5px 14px', background:'#b5451b', color:'#fff', border:'none', borderRadius:4, cursor:'pointer', height:28 }}>新增</button>
+        </div>
+      )}
+      <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'150px 1fr auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
+          {['姓名','電子郵件',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+        </div>
+        {mentors.map((m, i) => (
+          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'150px 1fr auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+            <div style={{ fontSize:13, color:'#1c1c1c' }}>
+              {m.name}
+              {m.note && <span style={{ fontSize:9.5, color:'#b5451b', marginLeft:5, background:'#fde8e3', padding:'1px 5px', borderRadius:3 }}>{m.note}</span>}
+            </div>
+            <div style={{ fontSize:12, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
+            <div style={{ display:'flex', gap:5 }}>
+              <SingleCopy email={m.email} />
+              <button onClick={() => onRemove(m.id)} style={{ fontSize:10, padding:'2px 5px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── 學生內容 ──────────────────────────────────────────────────────────────────
+function StudentContent({ students113, students114, onMarkLeft, onRestoreLeft }) {
+  const [leaveTarget, setLeaveTarget] = useState(null)
+  const [showLeft113, setShowLeft113] = useState(false)
+  const [showLeft114, setShowLeft114] = useState(false)
+
+  function StudentTable({ students, showLeft, setShowLeft, cohort, color }) {
+    const active = students.filter(s=>!s.left)
+    const left   = students.filter(s=>s.left)
+    return (
+      <div style={{ marginBottom:16 }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:8 }}>
+          <div style={{ fontSize:12, fontWeight:'bold', color }}>{cohort}學年度在學（{active.length}人）</div>
+          <CopyBtn emails={active.map(s=>`${s.id}@ntu.edu.tw`)} color={color} />
+        </div>
+        <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+          <div style={{ display:'grid', gridTemplateColumns:'85px 90px 130px 1fr 52px', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
+            {['學號','姓名','系級','電子郵件',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+          </div>
+          {active.map((s, i) => (
+            <div key={s.id} style={{ display:'grid', gridTemplateColumns:'85px 90px 130px 1fr 52px', padding:'8px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+              <div style={{ fontSize:10.5, color:'#aaa', fontFamily:'monospace' }}>{s.id}</div>
+              <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{s.name}</div>
+              <div style={{ fontSize:11, color:'#666' }}>{s.dept} {s.grade}年</div>
+              <div style={{ fontSize:11.5, color:'#555', fontFamily:'monospace' }}>{s.id}@ntu.edu.tw</div>
+              <button onClick={() => setLeaveTarget({...s, cohort})}
+                style={{ fontSize:10, padding:'2px 5px', border:'1px solid #f0ede8', borderRadius:3, background:'#fff', color:'#bbb', cursor:'pointer' }}>離開</button>
+            </div>
+          ))}
+        </div>
+        {left.length > 0 && (
+          <div style={{ marginTop:6 }}>
+            <button onClick={() => setShowLeft(o=>!o)}
+              style={{ fontSize:11, color:'#999', background:'#f5f2ee', border:'1px solid #e0dbd4', borderRadius:4, padding:'3px 10px', cursor:'pointer' }}>
+              {showLeft?'▲':'▼'} 已離開 {left.length} 人
+            </button>
+            {showLeft && (
+              <div style={{ marginTop:4, background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden', opacity:0.8 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'85px 90px 130px 1fr 52px', background:'#888', padding:'6px 14px', gap:8 }}>
+                  {['學號','姓名','系所','狀態',''].map((h,i)=><div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#fff' }}>{h}</div>)}
+                </div>
+                {left.map((s,i)=>(
+                  <div key={s.id} style={{ display:'grid', gridTemplateColumns:'85px 90px 130px 1fr 52px', padding:'7px 14px', background: i%2===0?'#fafaf8':'#f5f2ee', borderTop:'1px solid #f0ede8', gap:8, alignItems:'center' }}>
+                    <div style={{ fontSize:10.5, color:'#aaa', fontFamily:'monospace' }}>{s.id}</div>
+                    <div style={{ fontSize:12, color:'#999' }}>{s.name}</div>
+                    <div style={{ fontSize:11, color:'#aaa' }}>{s.dept}</div>
+                    <div style={{ fontSize:11, color:'#b5451b' }}>{s.leftReason}</div>
+                    <button onClick={() => onRestoreLeft(cohort, s.id)}
+                      style={{ fontSize:10, padding:'2px 5px', border:'1px solid #ddd', borderRadius:3, background:'#fff', color:'#888', cursor:'pointer' }}>還原</button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div>
       {leaveTarget && (
         <LeaveModal
           student={leaveTarget}
-          onConfirm={reason => { onMarkLeft(leaveTarget.id, reason); setLeaveTarget(null) }}
+          onConfirm={reason => { onMarkLeft(leaveTarget.cohort, leaveTarget.id, reason); setLeaveTarget(null) }}
           onCancel={() => setLeaveTarget(null)}
         />
       )}
-      <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'16px 0 8px' }}>
-        <div style={{ fontSize:13, fontWeight:'bold', color }}>{title}（在學 {active.length} 人）</div>
-        <CopyBtn emails={active.map(s=>`${s.id}@ntu.edu.tw`)} color={color} />
-      </div>
-      <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'88px 100px 140px 1fr 60px', background:'#1c1c1c', padding:'8px 16px', gap:8 }}>
-          {['學號','姓名','系級','電子郵件',''].map((h,i) => <div key={i} style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
-        </div>
-        {active.map((s, i) => (
-          <div key={s.id} style={{ display:'grid', gridTemplateColumns:'88px 100px 140px 1fr 60px', padding:'9px 16px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
-            <div style={{ fontSize:11, color:'#aaa', fontFamily:'monospace' }}>{s.id}</div>
-            <div style={{ fontSize:13.5, fontWeight:'bold', color:'#1c1c1c' }}>{s.name}</div>
-            <div style={{ fontSize:12, color:'#666' }}>{s.dept} {s.grade}年</div>
-            <div style={{ fontSize:12.5, color:'#555', fontFamily:'monospace' }}>{s.id}@ntu.edu.tw</div>
-            <button onClick={() => setLeaveTarget(s)}
-              style={{ fontSize:10, padding:'3px 6px', border:'1px solid #f0ede8', borderRadius:3, background:'#fff', color:'#bbb', cursor:'pointer', whiteSpace:'nowrap' }}>離開</button>
-          </div>
-        ))}
-        {active.length === 0 && (
-          <div style={{ padding:'16px', textAlign:'center', color:'#bbb', fontSize:13, fontStyle:'italic' }}>目前無在學學生</div>
-        )}
-      </div>
-
-      {/* 已離開折疊 */}
-      {left.length > 0 && (
-        <div style={{ marginTop:6 }}>
-          <button onClick={() => setShowLeft(o=>!o)}
-            style={{ fontSize:11.5, color:'#999', background:'#f5f2ee', border:'1px solid #e0dbd4', borderRadius:4, padding:'4px 12px', cursor:'pointer' }}>
-            {showLeft ? '▲' : '▼'} 已離開 {left.length} 人
-          </button>
-          {showLeft && (
-            <div style={{ marginTop:6, background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden', opacity:0.8 }}>
-              <div style={{ display:'grid', gridTemplateColumns:'88px 100px 140px 1fr 60px', background:'#888', padding:'7px 16px', gap:8 }}>
-                {['學號','姓名','系所','狀態',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#fff' }}>{h}</div>)}
-              </div>
-              {left.map((s, i) => (
-                <div key={s.id} style={{ display:'grid', gridTemplateColumns:'88px 100px 140px 1fr 60px', padding:'8px 16px', background: i%2===0?'#fafaf8':'#f5f2ee', borderTop:'1px solid #f0ede8', gap:8, alignItems:'center' }}>
-                  <div style={{ fontSize:11, color:'#aaa', fontFamily:'monospace' }}>{s.id}</div>
-                  <div style={{ fontSize:13, color:'#999' }}>{s.name}</div>
-                  <div style={{ fontSize:11.5, color:'#aaa' }}>{s.dept}</div>
-                  <div style={{ fontSize:11.5, color:'#b5451b' }}>{s.leftReason}</div>
-                  <button onClick={() => onRestoreLeft(s.id)}
-                    style={{ fontSize:10, padding:'3px 6px', border:'1px solid #ddd', borderRadius:3, background:'#fff', color:'#888', cursor:'pointer' }}>還原</button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+      <StudentTable students={students113} showLeft={showLeft113} setShowLeft={setShowLeft113} cohort="113" color="#b5451b" />
+      <StudentTable students={students114} showLeft={showLeft114} setShowLeft={setShowLeft114} cohort="114" color="#2e6b8a" />
     </div>
   )
 }
@@ -345,17 +342,14 @@ function StudentSection({ title, color, students, onMarkLeft, onRestoreLeft }) {
 // ── 主元件 ────────────────────────────────────────────────────────────────────
 export default function Contacts() {
   const [data, setData] = useState(null)
+  const [open, setOpen] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
   useEffect(() => {
     async function load() {
-      try {
-        const r = await storageGet(CONTACTS_KEY)
-        setData(r || INIT)
-      } catch {
-        setData(INIT)
-      }
+      try { const r = await storageGet(CONTACTS_KEY); setData(r || INIT) }
+      catch { setData(INIT) }
     }
     load()
   }, [])
@@ -363,84 +357,72 @@ export default function Contacts() {
   async function persist(next) {
     setData(next)
     setSaving(true)
-    try {
-      await storageSet(CONTACTS_KEY, next)
-      setSaved(true)
-      setTimeout(() => setSaved(false), 1800)
-    } catch(e) { console.error(e) }
+    try { await storageSet(CONTACTS_KEY, next); setSaved(true); setTimeout(()=>setSaved(false),1800) }
+    catch(e) { console.error(e) }
     setSaving(false)
   }
 
-  function updateCommittee(key, members) {
-    persist({ ...data, [key]: members })
+  function toggle(id) { setOpen(o => o===id ? null : id) }
+  function updateList(key, list) { persist({ ...data, [key]: list }) }
+  function markLeft(cohort, id, reason) {
+    const key = `students${cohort}`
+    persist({ ...data, [key]: data[key].map(s => s.id===id ? {...s, left:true, leftReason:reason} : s) })
   }
-
-  function markLeft(cohortKey, id, reason) {
-    const next = data[cohortKey].map(s => s.id === id ? { ...s, left:true, leftReason:reason } : s)
-    persist({ ...data, [cohortKey]: next })
-  }
-
-  function restoreLeft(cohortKey, id) {
-    const next = data[cohortKey].map(s => s.id === id ? { ...s, left:false, leftReason:'' } : s)
-    persist({ ...data, [cohortKey]: next })
+  function restoreLeft(cohort, id) {
+    const key = `students${cohort}`
+    persist({ ...data, [key]: data[key].map(s => s.id===id ? {...s, left:false, leftReason:''} : s) })
   }
 
   if (!data) return <div style={{ padding:40, color:'#aaa', fontFamily:'Georgia,serif' }}>載入中…</div>
 
+  const s113active = data.students113.filter(s=>!s.left).length
+  const s114active = data.students114.filter(s=>!s.left).length
+
+  const CARDS = [
+    { id:'college', label:'院學士審查委員', color:'#b5451b', count:`${data.collegeCommittee.length} 人` },
+    { id:'mentor',  label:'院學士導師',     color:'#b5451b', count:`${data.mentors.length} 人` },
+    { id:'s113',    label:'113學生',        color:'#c47c1a', count:`在學 ${s113active} 人` },
+    { id:'s114',    label:'114學生',        color:'#2e6b8a', count:`在學 ${s114active} 人` },
+    { id:'east',    label:'東亞學程委員',   color:'#8B5E3C', count:`${data.eastAsia.length} 人` },
+    { id:'china',   label:'中國大陸委員',   color:'#4a7c59', count:`${data.china.length} 人` },
+  ]
+
   return (
-    <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px', fontFamily:"'Georgia','Noto Serif TC',serif" }}>
-      {/* 存檔狀態 */}
-      <div style={{ textAlign:'right', fontSize:11, color: saved?'#27ae60':saving?'#aaa':'transparent', fontFamily:'monospace', marginBottom:8 }}>
-        {saving ? '儲存中…' : saved ? '✓ 已儲存' : '·'}
+    <div style={{ flex:1, overflowY:'auto', padding:'20px 24px 60px', fontFamily:"'Georgia','Noto Serif TC',serif" }}>
+      <style>{`@keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }`}</style>
+
+      {/* 存檔提示 */}
+      <div style={{ textAlign:'right', fontSize:10, color: saved?'#27ae60':saving?'#aaa':'transparent', fontFamily:'monospace', marginBottom:10 }}>
+        {saving?'儲存中…':saved?'✓ 已儲存':'·'}
       </div>
 
-      <CommitteeSection
-        title="院學士學位學程 審查小組委員"
-        color="#b5451b" accent="#fde8e3"
-        members={data.collegeCommittee}
-        onAdd={m => updateCommittee('collegeCommittee', [...data.collegeCommittee, m])}
-        onRemove={id => updateCommittee('collegeCommittee', data.collegeCommittee.filter(m=>m.id!==id))}
-      />
+      {/* 卡片列 */}
+      <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginBottom:20 }}>
+        {CARDS.map(c => (
+          <Card key={c.id} {...c} isOpen={open===c.id} onClick={toggle} />
+        ))}
+      </div>
 
-      <MentorSection
-        mentors={data.mentors}
-        onAdd={m => updateCommittee('mentors', [...data.mentors, m])}
-        onRemove={id => updateCommittee('mentors', data.mentors.filter(m=>m.id!==id))}
-      />
-
-      <div style={{ marginBottom:32 }}>
-        <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-          院學士學位學程 在學學生
+      {/* 展開內容 */}
+      {open && (
+        <div style={{ background:'#fff', borderRadius:10, border:`2px solid ${CARDS.find(c=>c.id===open)?.color}44`, padding:'20px 22px', animation:'slideDown 0.18s ease' }}>
+          {open==='college' && <CommitteeContent color="#b5451b" accent="#fde8e3" members={data.collegeCommittee}
+            onAdd={m=>updateList('collegeCommittee',[...data.collegeCommittee,m])}
+            onRemove={id=>updateList('collegeCommittee',data.collegeCommittee.filter(m=>m.id!==id))} />}
+          {open==='mentor' && <MentorContent mentors={data.mentors}
+            onAdd={m=>updateList('mentors',[...data.mentors,m])}
+            onRemove={id=>updateList('mentors',data.mentors.filter(m=>m.id!==id))} />}
+          {(open==='s113'||open==='s114') && <StudentContent
+            students113={data.students113} students114={data.students114}
+            onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
+          {open==='east' && <CommitteeContent color="#8B5E3C" accent="#f5e8cc" members={data.eastAsia}
+            onAdd={m=>updateList('eastAsia',[...data.eastAsia,m])}
+            onRemove={id=>updateList('eastAsia',data.eastAsia.filter(m=>m.id!==id))} />}
+          {open==='china' && <CommitteeContent color="#4a7c59" accent="#deebd0" members={data.china}
+            onAdd={m=>updateList('china',[...data.china,m])}
+            onRemove={id=>updateList('china',data.china.filter(m=>m.id!==id))} />}
         </div>
-        <StudentSection title="113學年度" color="#b5451b"
-          students={data.students113}
-          onMarkLeft={(id, reason) => markLeft('students113', id, reason)}
-          onRestoreLeft={id => restoreLeft('students113', id)}
-        />
-        <StudentSection title="114學年度" color="#b5451b"
-          students={data.students114}
-          onMarkLeft={(id, reason) => markLeft('students114', id, reason)}
-          onRestoreLeft={id => restoreLeft('students114', id)}
-        />
-      </div>
-
-      <CommitteeSection
-        title="東亞研究學分學程 委員會"
-        color="#8B5E3C" accent="#f5e8cc"
-        members={data.eastAsia}
-        onAdd={m => updateCommittee('eastAsia', [...data.eastAsia, m])}
-        onRemove={id => updateCommittee('eastAsia', data.eastAsia.filter(m=>m.id!==id))}
-      />
-
-      <CommitteeSection
-        title="中國大陸研究學分學程 委員會"
-        color="#4a7c59" accent="#deebd0"
-        members={data.china}
-        onAdd={m => updateCommittee('china', [...data.china, m])}
-        onRemove={id => updateCommittee('china', data.china.filter(m=>m.id!==id))}
-      />
-
-      <div style={{ fontSize:11, color:'#bbb', fontStyle:'italic', textAlign:'right' }}>最後更新：115年6月</div>
+      )}
     </div>
   )
 }
