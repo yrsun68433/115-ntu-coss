@@ -83,6 +83,140 @@ const DEADLINES = {
 function deepClone(obj) { return JSON.parse(JSON.stringify(obj)) }
 function fmt(n) { return n == null ? '—' : '＄' + n.toLocaleString() }
 
+// ── 通訊錄資料 ────────────────────────────────────────────────────────────────
+const COLLEGE_COMMITTEE = [
+  { name:'洪貞玲', note:'召集人（副院長）', email:'clhung@ntu.edu.tw' },
+  { name:'黃景沂', note:'', email:'chingihuang@ntu.edu.tw' },
+  { name:'陳昱志', note:'', email:'ycrchen@ntu.edu.tw' },
+  { name:'蔡宜展', note:'', email:'yichantsai@ntu.edu.tw' },
+  { name:'黃凱苹', note:'', email:'kaipinghuang@ntu.edu.tw' },
+  { name:'賴建宇', note:'', email:'cyljason@ntu.edu.tw' },
+  { name:'洪晨碩', note:'', email:'cshong@ntu.edu.tw' },
+]
+const MENTORS = [
+  { name:'王道一', note:'113學年度導師', email:'josephw@ntu.edu.tw' },
+  { name:'張登及', note:'114學年度導師', email:'tchang@ntu.edu.tw' },
+]
+const EAST_ASIA_COMMITTEE = [
+  { name:'周嘉辰', note:'召集人', email:'chelseachou@ntu.edu.tw' },
+  { name:'蔡蕙如', note:'', email:'tsaihuiju@ntu.edu.tw' },
+  { name:'謝宛蓉', note:'', email:'wanjungh@ntu.edu.tw' },
+  { name:'賴建宇', note:'', email:'cyljason@ntu.edu.tw' },
+  { name:'李宥霆', note:'', email:'ytandylee@ntu.edu.tw' },
+  { name:'左正東', note:'', email:'ctso@ntu.edu.tw' },
+  { name:'王宏文', note:'', email:'hongwung@ntu.edu.tw' },
+  { name:'何明修', note:'', email:'msho@ntu.edu.tw' },
+]
+const CHINA_COMMITTEE = [
+  { name:'蔡季廷', note:'召集人', email:'chiting@ntu.edu.tw' },
+  { name:'徐斯勤', note:'', email:'schsu01@ntu.edu.tw' },
+]
+const STUDENTS_113_ACTIVE = [
+  { id:'B12302252', name:'黃琦雯', dept:'政治系國關組', grade:3 },
+  { id:'B12302259', name:'鄭沁哲', dept:'政治系國關組', grade:3 },
+  { id:'B12302350', name:'詹明翰', dept:'政治系公行組', grade:3 },
+  { id:'B11302212', name:'蔡佑澤', dept:'經濟系', grade:4 },
+  { id:'B11303023', name:'吳瑞家', dept:'經濟系', grade:4 },
+  { id:'B11303039', name:'陳彥廷', dept:'經濟系', grade:4 },
+  { id:'B11303042', name:'黃沛綺', dept:'經濟系', grade:4 },
+  { id:'B12303002', name:'郭秉豐', dept:'經濟系', grade:3 },
+  { id:'B12303054', name:'袁承亨', dept:'經濟系', grade:3 },
+  { id:'B12303136', name:'彭晨紘', dept:'經濟系', grade:3 },
+  { id:'B12305017', name:'呂政陽', dept:'社會系', grade:3 },
+  { id:'B12305039', name:'余承熹', dept:'社會系', grade:3 },
+  { id:'B12305049', name:'陳亮勳', dept:'社會系', grade:3 },
+  { id:'B12310049', name:'游佩軒', dept:'社工系', grade:3 },
+]
+const STUDENTS_113_LEFT = [
+  { id:'B11302337', name:'吳家杏', dept:'政治系公行組', grade:4, reason:'放棄（114-1）' },
+  { id:'B11302353', name:'盧子琳', dept:'政治系公行組', grade:4, reason:'放棄（114-1）' },
+  { id:'B11303063', name:'鄭學澤', dept:'經濟系', grade:4, reason:'放棄（114-1）' },
+  { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, reason:'畢業（114，首屆）' },
+]
+const STUDENTS_114_ACTIVE = [
+  { id:'B13302107', name:'孫珮珈', dept:'政治系政論組', grade:2 },
+  { id:'B12302144', name:'黃彩慈', dept:'政治系政論組', grade:3 },
+  { id:'B13302230', name:'金柔旼', dept:'政治系國關組', grade:2 },
+  { id:'B12302152', name:'蕭博仁', dept:'政治系國關組', grade:3 },
+  { id:'B13302308', name:'蔡佳芸', dept:'政治系公行組', grade:2 },
+  { id:'B13302342', name:'褚芳妘', dept:'政治系公行組', grade:2 },
+  { id:'B12302314', name:'陳麗庭', dept:'政治系公行組', grade:3 },
+  { id:'B13303035', name:'朱皓瑋', dept:'經濟系', grade:2 },
+  { id:'B13303056', name:'黃冠予', dept:'經濟系', grade:2 },
+  { id:'B13303057', name:'蔡睿燊', dept:'經濟系', grade:2 },
+  { id:'B13303062', name:'林天麗', dept:'經濟系', grade:2 },
+  { id:'B13303153', name:'詹舒宇', dept:'經濟系', grade:2 },
+  { id:'B12302147', name:'詹怡安', dept:'經濟系', grade:3 },
+  { id:'B12303010', name:'林宜萱', dept:'經濟系', grade:3 },
+  { id:'B12303122', name:'林冠廷', dept:'經濟系', grade:3 },
+  { id:'B12305003', name:'高唯琮', dept:'社會系', grade:3 },
+  { id:'B12305019', name:'李芸熏', dept:'社會系', grade:3 },
+  { id:'B12305025', name:'張佳瑩', dept:'社會系', grade:3 },
+  { id:'B12305040', name:'吳士宏', dept:'社會系', grade:3 },
+  { id:'B11305035', name:'吳秉霖', dept:'社會系', grade:4 },
+  { id:'B11310045', name:'林芷妤', dept:'社工系', grade:4 },
+  { id:'B12702083', name:'徐苡茜', dept:'會計系', grade:3 },
+  { id:'B12702097', name:'陳彥蓁', dept:'會計系', grade:3 },
+  { id:'B11302211', name:'吳和華', dept:'會計系', grade:4 },
+  { id:'B12703015', name:'楊政諺', dept:'財金系', grade:3 },
+  { id:'B12801022', name:'賴禾凱', dept:'公衛系', grade:3 },
+]
+const STUDENTS_114_LEFT = [
+  { id:'B13302332', name:'張芷瑜', dept:'政治系公行組', grade:2, reason:'放棄（114-2，更換雙主修）' },
+  { id:'B11305043', name:'陳孝祤', dept:'社會系', grade:4, reason:'放棄（114-2）' },
+  { id:'B11H04006', name:'李　蕎', dept:'運動學士學程', grade:4, reason:'放棄（已轉入政治系）' },
+]
+
+// ── 通訊錄元件 ────────────────────────────────────────────────────────────────
+function CopyAllBtn({ emails, color }) {
+  const [copied, setCopied] = React.useState(false)
+  return (
+    <button
+      onClick={() => { navigator.clipboard.writeText(emails.join('; ')); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
+      style={{ fontSize:11, padding:'4px 12px', background: copied?'#27ae60':color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer', flexShrink:0, transition:'background 0.2s' }}
+    >{copied ? '✓ 已複製' : '複製全部 email'}</button>
+  )
+}
+
+function CommitteeTable({ members, color, accent }) {
+  return (
+    <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'160px 1fr', background:'#1c1c1c', padding:'8px 16px' }}>
+        <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
+        <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
+      </div>
+      {members.map((m, i) => (
+        <div key={m.email} style={{ display:'grid', gridTemplateColumns:'160px 1fr', padding:'10px 16px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center' }}>
+          <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
+            {m.name}
+            {m.note && <span style={{ fontSize:10, color, marginLeft:6, background:accent, padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
+          </div>
+          <div style={{ fontSize:13, color:'#555', fontFamily:'monospace', userSelect:'text' }}>{m.email}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function StudentTable({ students }) {
+  return (
+    <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+      <div style={{ display:'grid', gridTemplateColumns:'80px 100px 120px 1fr', background:'#1c1c1c', padding:'8px 16px', gap:8 }}>
+        {['學號','姓名','系級','電子郵件'].map(h => <div key={h} style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+      </div>
+      {students.map((s, i) => (
+        <div key={s.id} style={{ display:'grid', gridTemplateColumns:'80px 100px 120px 1fr', padding:'9px 16px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+          <div style={{ fontSize:11.5, color:'#888', fontFamily:'monospace' }}>{s.id}</div>
+          <div style={{ fontSize:13.5, color:'#1c1c1c', fontWeight:'bold' }}>{s.name}</div>
+          <div style={{ fontSize:12, color:'#666' }}>{s.dept}　{s.grade}年</div>
+          <div style={{ fontSize:13, color:'#555', fontFamily:'monospace', userSelect:'text' }}>{s.id}@ntu.edu.tw</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+
 function LeftStudents({ students }) {
   const [open, setOpen] = React.useState(false)
   return (
@@ -615,174 +749,16 @@ export default function App() {
       )}
 
       {/* ════════════════ 通訊錄 ════════════════ */}
-      {activeTab === 'contacts' && (() => {
-        function CopyBtn({ emails, color }) {
-          const [copied, setCopied] = useState(false)
-          return (
-            <button
-              onClick={() => {
-                navigator.clipboard.writeText(emails.join('; '))
-                setCopied(true)
-                setTimeout(() => setCopied(false), 2000)
-              }}
-              style={{ fontSize:11, padding:'4px 12px', background: copied ? '#27ae60' : color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer', flexShrink:0, transition:'background 0.2s' }}
-            >{copied ? '✓ 已複製' : '複製全部 email'}</button>
-          )
-        }
-
-        const students113Active = [
-          { id:'B12302252', name:'黃琦雯', dept:'政治系國關組', grade:3 },
-          { id:'B12302259', name:'鄭沁哲', dept:'政治系國關組', grade:3 },
-          { id:'B12302350', name:'詹明翰', dept:'政治系公行組', grade:3 },
-          { id:'B11302212', name:'蔡佑澤', dept:'經濟系', grade:4 },
-          { id:'B11303023', name:'吳瑞家', dept:'經濟系', grade:4 },
-          { id:'B11303039', name:'陳彥廷', dept:'經濟系', grade:4 },
-          { id:'B11303042', name:'黃沛綺', dept:'經濟系', grade:4 },
-          { id:'B12303002', name:'郭秉豐', dept:'經濟系', grade:3 },
-          { id:'B12303054', name:'袁承亨', dept:'經濟系', grade:3 },
-          { id:'B12303136', name:'彭晨紘', dept:'經濟系', grade:3 },
-          { id:'B12305017', name:'呂政陽', dept:'社會系', grade:3 },
-          { id:'B12305039', name:'余承熹', dept:'社會系', grade:3 },
-          { id:'B12305049', name:'陳亮勳', dept:'社會系', grade:3 },
-          { id:'B12310049', name:'游佩軒', dept:'社工系', grade:3 },
-        ]
-        const students113Left = [
-          { id:'B11302337', name:'吳家杏', dept:'政治系公行組', grade:4, reason:'放棄（114-1）' },
-          { id:'B11302353', name:'盧子琳', dept:'政治系公行組', grade:4, reason:'放棄（114-1）' },
-          { id:'B11303063', name:'鄭學澤', dept:'經濟系', grade:4, reason:'放棄（114-1）' },
-          { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, reason:'畢業（114，首屆）' },
-        ]
-        const students113 = students113Active
-        const students114Active = [
-          { id:'B13302107', name:'孫珮珈', dept:'政治系政論組', grade:2 },
-          { id:'B12302144', name:'黃彩慈', dept:'政治系政論組', grade:3 },
-          { id:'B13302230', name:'金柔旼', dept:'政治系國關組', grade:2 },
-          { id:'B12302152', name:'蕭博仁', dept:'政治系國關組', grade:3 },
-          { id:'B13302308', name:'蔡佳芸', dept:'政治系公行組', grade:2 },
-          { id:'B13302342', name:'褚芳妘', dept:'政治系公行組', grade:2 },
-          { id:'B12302314', name:'陳麗庭', dept:'政治系公行組', grade:3 },
-          { id:'B13303035', name:'朱皓瑋', dept:'經濟系', grade:2 },
-          { id:'B13303056', name:'黃冠予', dept:'經濟系', grade:2 },
-          { id:'B13303057', name:'蔡睿燊', dept:'經濟系', grade:2 },
-          { id:'B13303062', name:'林天麗', dept:'經濟系', grade:2 },
-          { id:'B13303153', name:'詹舒宇', dept:'經濟系', grade:2 },
-          { id:'B12302147', name:'詹怡安', dept:'經濟系', grade:3 },
-          { id:'B12303010', name:'林宜萱', dept:'經濟系', grade:3 },
-          { id:'B12303122', name:'林冠廷', dept:'經濟系', grade:3 },
-          { id:'B12305003', name:'高唯琮', dept:'社會系', grade:3 },
-          { id:'B12305019', name:'李芸熏', dept:'社會系', grade:3 },
-          { id:'B12305025', name:'張佳瑩', dept:'社會系', grade:3 },
-          { id:'B12305040', name:'吳士宏', dept:'社會系', grade:3 },
-          { id:'B11305035', name:'吳秉霖', dept:'社會系', grade:4 },
-          { id:'B11310045', name:'林芷妤', dept:'社工系', grade:4 },
-          { id:'B12702083', name:'徐苡茜', dept:'會計系', grade:3 },
-          { id:'B12702097', name:'陳彥蓁', dept:'會計系', grade:3 },
-          { id:'B11302211', name:'吳和華', dept:'會計系', grade:4 },
-          { id:'B12703015', name:'楊政諺', dept:'財金系', grade:3 },
-          { id:'B12801022', name:'賴禾凱', dept:'公衛系', grade:3 },
-        ]
-        const students114Left = [
-          { id:'B13302332', name:'張芷瑜', dept:'政治系公行組', grade:2, reason:'放棄（114-2，更換雙主修）' },
-          { id:'B11305043', name:'陳孝祤', dept:'社會系', grade:4, reason:'放棄（114-2）' },
-          { id:'B11H04006', name:'李　蕎', dept:'運動學士學程', grade:4, reason:'放棄（已轉入政治系）' },
-        ]
-        const students114 = students114Active
-        const collegeCommittee = [
-          { name:'洪貞玲', note:'召集人（副院長）', email:'clhung@ntu.edu.tw' },
-          { name:'黃景沂', note:'', email:'chingihuang@ntu.edu.tw' },
-          { name:'陳昱志', note:'', email:'ycrchen@ntu.edu.tw' },
-          { name:'蔡宜展', note:'', email:'yichantsai@ntu.edu.tw' },
-          { name:'黃凱苹', note:'', email:'kaipinghuang@ntu.edu.tw' },
-          { name:'賴建宇', note:'', email:'cyljason@ntu.edu.tw' },
-          { name:'洪晨碩', note:'', email:'cshong@ntu.edu.tw' },
-        ]
-        const mentors = [
-          { name:'王道一', note:'113學年度導師', email:'josephw@ntu.edu.tw' },
-          { name:'張登及', note:'114學年度導師', email:'tchang@ntu.edu.tw' },
-        ]
-        const eastAsiaCommittee = [
-          { name:'周嘉辰', note:'召集人', email:'chelseachou@ntu.edu.tw' },
-          { name:'蔡蕙如', note:'', email:'tsaihuiju@ntu.edu.tw' },
-          { name:'謝宛蓉', note:'', email:'wanjungh@ntu.edu.tw' },
-          { name:'賴建宇', note:'', email:'cyljason@ntu.edu.tw' },
-          { name:'李宥霆', note:'', email:'ytandylee@ntu.edu.tw' },
-          { name:'左正東', note:'', email:'ctso@ntu.edu.tw' },
-          { name:'王宏文', note:'', email:'hongwung@ntu.edu.tw' },
-          { name:'何明修', note:'', email:'msho@ntu.edu.tw' },
-        ]
-        const chinaCommittee = [
-          { name:'蔡季廷', note:'召集人', email:'chiting@ntu.edu.tw' },
-          { name:'徐斯勤', note:'', email:'schsu01@ntu.edu.tw' },
-        ]
-
-        function MentorRow({ m, i }) {
-          const [copied, setCopied] = useState(false)
-          return (
-            <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:12 }}>
-              <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
-                {m.name}
-                {m.note && <span style={{ fontSize:10, color:'#b5451b', marginLeft:6, background:'#fde8e3', padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
-              </div>
-              <div style={{ fontSize:13, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
-              <button
-                onClick={() => { navigator.clipboard.writeText(m.email); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
-                style={{ fontSize:10, padding:'3px 8px', background: copied?'#27ae60':'#f0ede8', color: copied?'#fff':'#666', border:'none', borderRadius:3, cursor:'pointer', whiteSpace:'nowrap', transition:'background 0.2s' }}
-              >{copied ? '✓' : '複製'}</button>
-            </div>
-          )
-        }
-
-        function CommitteeTable({ members, color, accent }) {
-          return (
-            <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'160px 1fr', background:'#1c1c1c', padding:'8px 16px' }}>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
-              </div>
-              {members.map((m, i) => (
-                <div key={m.email} style={{ display:'grid', gridTemplateColumns:'160px 1fr', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center' }}>
-                  <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
-                    {m.name}
-                    {m.note && <span style={{ fontSize:10, color, marginLeft:6, background:accent, padding:'1px 6px', borderRadius:3 }}>{m.note}</span>}
-                  </div>
-                  <div style={{ fontSize:13, color:'#555', fontFamily:'monospace', userSelect:'text' }}>{m.email}</div>
-                </div>
-              ))}
-            </div>
-          )
-        }
-
-        function StudentTable({ students }) {
-          return (
-            <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'80px 100px 120px 1fr', background:'#1c1c1c', padding:'8px 16px', gap:8 }}>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>學號</div>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>系級</div>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
-              </div>
-              {students.map((s, i) => (
-                <div key={s.id} style={{ display:'grid', gridTemplateColumns:'80px 100px 120px 1fr', padding:'9px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
-                  <div style={{ fontSize:11.5, color:'#888', fontFamily:'monospace' }}>{s.id}</div>
-                  <div style={{ fontSize:13.5, color:'#1c1c1c', fontWeight:'bold' }}>{s.name}</div>
-                  <div style={{ fontSize:12, color:'#666' }}>{s.dept}　{s.grade}年</div>
-                  <div style={{ fontSize:13, color:'#555', fontFamily:'monospace', userSelect:'text' }}>{s.id}@ntu.edu.tw</div>
-                </div>
-              ))}
-            </div>
-          )
-        }
-
-        return (
+      {activeTab === 'contacts' && (
         <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
 
           {/* ── 院學士委員會 ── */}
           <div style={{ marginBottom:32 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
               <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b' }}>院學士學位學程 審查小組委員</div>
-              <CopyBtn emails={collegeCommittee.map(m=>m.email)} color="#b5451b" />
+              <CopyAllBtn emails={COLLEGE_COMMITTEE.map(m=>m.email)} color="#b5451b" />
             </div>
-            <CommitteeTable members={collegeCommittee} color="#b5451b" accent="#fde8e3" />
+            <CommitteeTable members={COLLEGE_COMMITTEE} color="#b5451b" accent="#fde8e3" />
           </div>
 
           {/* ── 院學士導師 ── */}
@@ -796,9 +772,7 @@ export default function App() {
                 <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
                 <div />
               </div>
-              {mentors.map((m, i) => (
-                <MentorRow key={m.email} m={m} i={i} />
-              ))}
+              {MENTORS.map((m, i) => <MentorRow key={m.email} m={m} i={i} />)}
             </div>
           </div>
 
@@ -807,44 +781,41 @@ export default function App() {
             <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
               院學士學位學程 在學學生
             </div>
-
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'16px 0 8px' }}>
-              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>113學年度在學（{students113Active.length}人）</div>
-              <CopyBtn emails={students113Active.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
+              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>113學年度在學（{STUDENTS_113_ACTIVE.length}人）</div>
+              <CopyAllBtn emails={STUDENTS_113_ACTIVE.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
             </div>
-            <StudentTable students={students113Active} />
-            <LeftStudents students={students113Left} />
-
+            <StudentTable students={STUDENTS_113_ACTIVE} />
+            <LeftStudents students={STUDENTS_113_LEFT} />
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'20px 0 8px' }}>
-              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>114學年度在學（{students114Active.length}人）</div>
-              <CopyBtn emails={students114Active.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
+              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>114學年度在學（{STUDENTS_114_ACTIVE.length}人）</div>
+              <CopyAllBtn emails={STUDENTS_114_ACTIVE.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
             </div>
-            <StudentTable students={students114Active} />
-            <LeftStudents students={students114Left} />
+            <StudentTable students={STUDENTS_114_ACTIVE} />
+            <LeftStudents students={STUDENTS_114_LEFT} />
           </div>
 
           {/* ── 東亞學程委員會 ── */}
           <div style={{ marginBottom:32 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #8B5E3C44' }}>
               <div style={{ fontSize:18, fontWeight:'bold', color:'#8B5E3C' }}>東亞研究學分學程 委員會</div>
-              <CopyBtn emails={eastAsiaCommittee.map(m=>m.email)} color="#8B5E3C" />
+              <CopyAllBtn emails={EAST_ASIA_COMMITTEE.map(m=>m.email)} color="#8B5E3C" />
             </div>
-            <CommitteeTable members={eastAsiaCommittee} color="#8B5E3C" accent="#f5e8cc" />
+            <CommitteeTable members={EAST_ASIA_COMMITTEE} color="#8B5E3C" accent="#f5e8cc" />
           </div>
 
           {/* ── 中國大陸學程委員會 ── */}
           <div style={{ marginBottom:32 }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #4a7c5944' }}>
               <div style={{ fontSize:18, fontWeight:'bold', color:'#4a7c59' }}>中國大陸研究學分學程 委員會</div>
-              <CopyBtn emails={chinaCommittee.map(m=>m.email)} color="#4a7c59" />
+              <CopyAllBtn emails={CHINA_COMMITTEE.map(m=>m.email)} color="#4a7c59" />
             </div>
-            <CommitteeTable members={chinaCommittee} color="#4a7c59" accent="#deebd0" />
+            <CommitteeTable members={CHINA_COMMITTEE} color="#4a7c59" accent="#deebd0" />
           </div>
 
           <div style={{ fontSize:11, color:'#bbb', fontStyle:'italic', textAlign:'right' }}>最後更新：115年6月</div>
         </div>
-        )
-      })()}
+      )}
 
       {/* ════════════════ 修習狀態 ════════════════ */}
       {activeTab === 'status' && (() => {
