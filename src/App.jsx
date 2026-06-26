@@ -571,7 +571,7 @@ export default function App() {
           </div>
         </div>
         <div style={{ display:'flex', gap:4 }}>
-          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸'],['contacts','通訊錄'],['status','修習狀態']].map(([key, label]) => (
+          {[['work','工作時程'],['budget','預算控管'],['timeline','時間軸'],['status','修習狀態']].map(([key, label]) => (
             <button key={key} onClick={() => { setActiveTab(key); setActiveMonth(null) }}
               style={{ padding:'6px 18px', fontSize:12, fontFamily:'Georgia,serif', background: activeTab===key ? '#f2ede6' : 'transparent', color: activeTab===key ? '#1c1c1c' : '#888', border:'1px solid', borderColor: activeTab===key ? '#f2ede6' : '#444', borderRadius:'4px 4px 0 0', cursor:'pointer', letterSpacing:'0.04em' }}>
               {label}
@@ -844,76 +844,8 @@ export default function App() {
         </div>
       )}
 
-      {/* ════════════════ 通訊錄 ════════════════ */}
-      {activeTab === 'contacts' && (
-        <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
 
-          {/* ── 院學士委員會 ── */}
-          <div style={{ marginBottom:32 }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-              <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b' }}>院學士學位學程 審查小組委員</div>
-              <CopyAllBtn emails={COLLEGE_COMMITTEE.map(m=>m.email)} color="#b5451b" />
-            </div>
-            <CommitteeTable members={COLLEGE_COMMITTEE} color="#b5451b" accent="#fde8e3" />
-          </div>
-
-          {/* ── 院學士導師 ── */}
-          <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-              院學士學位學程 導師
-            </div>
-            <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-              <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', background:'#1c1c1c', padding:'8px 16px', gap:12 }}>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>姓名</div>
-                <div style={{ fontSize:12, fontWeight:'bold', color:'#f2ede6' }}>電子郵件</div>
-                <div />
-              </div>
-              {MENTORS.map((m, i) => <MentorRow key={m.email} m={m} i={i} />)}
-            </div>
-          </div>
-
-          {/* ── 院學士學生 ── */}
-          <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:18, fontWeight:'bold', color:'#b5451b', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #b5451b44' }}>
-              院學士學位學程 在學學生
-            </div>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'16px 0 8px' }}>
-              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>113學年度在學（{STUDENTS_113_ACTIVE.length}人）</div>
-              <CopyAllBtn emails={STUDENTS_113_ACTIVE.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
-            </div>
-            <StudentTable students={STUDENTS_113_ACTIVE} />
-            <LeftStudents students={STUDENTS_113_LEFT} />
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', margin:'20px 0 8px' }}>
-              <div style={{ fontSize:13, fontWeight:'bold', color:'#b5451b' }}>114學年度在學（{STUDENTS_114_ACTIVE.length}人）</div>
-              <CopyAllBtn emails={STUDENTS_114_ACTIVE.map(s=>`${s.id}@ntu.edu.tw`)} color="#b5451b" />
-            </div>
-            <StudentTable students={STUDENTS_114_ACTIVE} />
-            <LeftStudents students={STUDENTS_114_LEFT} />
-          </div>
-
-          {/* ── 東亞學程委員會 ── */}
-          <div style={{ marginBottom:32 }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #8B5E3C44' }}>
-              <div style={{ fontSize:18, fontWeight:'bold', color:'#8B5E3C' }}>東亞研究學分學程 委員會</div>
-              <CopyAllBtn emails={EAST_ASIA_COMMITTEE.map(m=>m.email)} color="#8B5E3C" />
-            </div>
-            <CommitteeTable members={EAST_ASIA_COMMITTEE} color="#8B5E3C" accent="#f5e8cc" />
-          </div>
-
-          {/* ── 中國大陸學程委員會 ── */}
-          <div style={{ marginBottom:32 }}>
-            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4, paddingBottom:8, borderBottom:'2px solid #4a7c5944' }}>
-              <div style={{ fontSize:18, fontWeight:'bold', color:'#4a7c59' }}>中國大陸研究學分學程 委員會</div>
-              <CopyAllBtn emails={CHINA_COMMITTEE.map(m=>m.email)} color="#4a7c59" />
-            </div>
-            <CommitteeTable members={CHINA_COMMITTEE} color="#4a7c59" accent="#deebd0" />
-          </div>
-
-          <div style={{ fontSize:11, color:'#bbb', fontStyle:'italic', textAlign:'right' }}>最後更新：115年6月</div>
-        </div>
-      )}
-
-      {/* ════════════════ 修習狀態 ════════════════ */}
+            {/* ════════════════ 修習狀態 ════════════════ */}
       {activeTab === 'status' && (
         <div style={{ flex:1, overflowY:'auto', padding:'24px 28px 60px' }}>
           <div style={{ marginBottom:32 }}>
