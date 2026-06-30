@@ -54,7 +54,7 @@ const INIT = {
   admin: [
     { id:'ad1', name:'林儀欣', note:'人事室二組／差勤', email:'yhlin1012@ntu.edu.tw', phone:'66208' },
     { id:'ad2', name:'李奕萱', note:'人事室四組', email:'liyihsuan@ntu.edu.tw', phone:'69939' },
-    { id:'ad3', name:'藍雅環', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'' },
+    { id:'ad3', name:'藍雅環', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'62388#206' },
     { id:'ad4', name:'林家民', note:'註冊組／申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207' },
     { id:'ad5', name:'王冠盈', note:'課務組／課程異動', email:'kywang@ntu.edu.tw', phone:'62388#303' },
   ],
