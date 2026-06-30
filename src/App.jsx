@@ -409,6 +409,7 @@ export default function App() {
   const [completedNotes, setCompletedNotes] = useState({})
   const [statusData, setStatusData] = useState({})
   const [currentYear, setCurrentYear] = useState(115)
+  const [currentMonthId, setCurrentMonthId] = useState('now')
   const [heartColors, setHeartColors] = useState({})
   const [colorPickerOpen, setColorPickerOpen] = useState(null)
   const [editingBudgetNote, setEditingBudgetNote] = useState(null)
@@ -455,6 +456,7 @@ export default function App() {
           if (saved.heartColors) setHeartColors(saved.heartColors)
           if (saved.statusData) setStatusData(saved.statusData)
           if (saved.currentYear) setCurrentYear(saved.currentYear)
+          if (saved.currentMonthId) setCurrentMonthId(saved.currentMonthId)
         } else {
           setSections(deepClone(MONTHS))
           setBudgetState(initBudgetState())
@@ -481,7 +483,7 @@ export default function App() {
     const _hc = hc !== undefined ? hc : heartColors
     const _sd = sd !== undefined ? sd : statusData
     try {
-      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, statusData: _sd, currentYear, updatedAt: new Date().toISOString() })
+      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, statusData: _sd, currentYear, currentMonthId, updatedAt: new Date().toISOString() })
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 1800)
     } catch(e) { console.error('存檔失敗', e) }
@@ -609,18 +611,37 @@ export default function App() {
         <div style={{ display:'flex', flex:1, minHeight:0 }}>
           {/* 左欄便條紙 */}
           <div style={{ width:160, flexShrink:0, overflowY:'auto', padding:'20px 12px 20px 16px', display:'flex', flexDirection:'column', gap:12, borderRight:'1px solid #e0dbd4', background:'#ece8e1' }}>
+            {/* 目前月份設定 */}
+            <div style={{ background:'#1c1c1c', borderRadius:6, padding:'8px 10px', marginBottom:2 }}>
+              <div style={{ fontSize:9, color:'#888', fontFamily:'monospace', marginBottom:4, letterSpacing:'0.1em' }}>設定「現在」</div>
+              <select
+                value={currentMonthId}
+                onChange={e => { setCurrentMonthId(e.target.value); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData, e.target.value) }}
+                style={{ width:'100%', fontSize:12, padding:'3px 4px', border:'1px solid #444', borderRadius:4, background:'#2a2a2a', color:'#f2ede6', cursor:'pointer' }}
+              >
+                {MONTHS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
+              </select>
+            </div>
+
             {sections.map((month, idx) => {
               const orig = MONTHS[idx]
               const done = month.items.filter(i => i.done).length
               const total = month.items.length
               const isActive = activeMonth === month.id
+              const isCurrent = month.id === currentMonthId
+              // 計算「上個月」未完成事項數量（結轉提示）
+              const currentIdx = MONTHS.findIndex(m => m.id === currentMonthId)
+              const prevMonth = currentIdx > 0 ? sections[currentIdx - 1] : null
+              const carryOverCount = isCurrent && prevMonth ? prevMonth.items.filter(i => !i.done).length : 0
               return (
                 <button key={month.id} className="note-card" onClick={() => setActiveMonth(isActive ? null : month.id)}
-                  style={{ width:'100%', background: isActive ? orig.color : '#fff', color: isActive ? '#fff' : '#1c1c1c', border:`2px solid ${orig.color}`, borderRadius:6, padding:'12px 10px 10px', cursor:'pointer', textAlign:'left', position:'relative', boxShadow: isActive ? `0 4px 14px ${orig.color}55` : '2px 3px 8px rgba(0,0,0,0.09)', transition:'all 0.18s ease', display:'flex', flexDirection:'column', gap:8 }}>
+                  style={{ width:'100%', background: isActive ? orig.color : '#fff', color: isActive ? '#fff' : '#1c1c1c', border: isCurrent ? `3px solid ${orig.color}` : `2px solid ${orig.color}`, borderRadius:6, padding:'12px 10px 10px', cursor:'pointer', textAlign:'left', position:'relative', boxShadow: isActive ? `0 4px 14px ${orig.color}55` : isCurrent ? `0 0 0 2px ${orig.color}33` : '2px 3px 8px rgba(0,0,0,0.09)', transition:'all 0.18s ease', display:'flex', flexDirection:'column', gap:8 }}>
                   <div style={{ position:'absolute', top:7, right:10, width:8, height:8, borderRadius:'50%', background: isActive ? 'rgba(255,255,255,0.5)' : orig.color, opacity:0.8 }} />
                   <div>
                     <div style={{ fontSize:18, fontWeight:'bold', lineHeight:1 }}>{orig.label}</div>
-                    {orig.sub && <div style={{ fontSize:10, opacity:0.6, marginTop:2, letterSpacing:'0.06em' }}>{orig.sub}</div>}
+                    <div style={{ fontSize:10, opacity:0.6, marginTop:2, letterSpacing:'0.06em' }}>
+                      {isCurrent ? '現在' : (orig.sub || '')}
+                    </div>
                   </div>
                   <div>
                     <div style={{ fontSize:10, opacity:0.55, marginBottom:5, fontFamily:'monospace' }}>{done}/{total}</div>
@@ -632,6 +653,11 @@ export default function App() {
                         <div key={item.id} style={{ width:7, height:7, borderRadius:'50%', background: item.done ? (isActive ? '#fff' : orig.color) : (isActive ? 'rgba(255,255,255,0.25)' : '#ddd'), transition:'background 0.2s' }} />
                       ))}
                     </div>
+                    {carryOverCount > 0 && (
+                      <div style={{ marginTop:6, fontSize:9, color: isActive ? '#fff' : '#b5451b', background: isActive ? 'rgba(255,255,255,0.2)' : '#fde8e3', borderRadius:3, padding:'2px 5px', fontWeight:'bold' }}>
+                        ⚠ {prevMonth.label}有 {carryOverCount} 件未完成
+                      </div>
+                    )}
                   </div>
                 </button>
               )
@@ -651,10 +677,23 @@ export default function App() {
                     </div>
                     <div style={{ fontFamily:'monospace', fontSize:12, opacity:0.85 }}>{activeData.items.filter(i=>i.done).length} / {activeData.items.length} 完成</div>
                   </div>
-                  {/* 已完成：愛心區 */}
+                  {/* 已完成：愛心區（依顏色加入順序分組排列）*/}
                   {activeData.items.some(i=>i.done) && (
                     <div style={{ display:'flex', flexWrap:'wrap', gap:8, paddingTop:10, borderTop:'1px solid rgba(255,255,255,0.2)' }}>
-                      {activeData.items.filter(i=>i.done).map(item => {
+                      {(() => {
+                        const doneItems = activeData.items.filter(i=>i.done)
+                        const colorOrder = []
+                        doneItems.forEach(item => {
+                          const c = heartColors[`${activeMonth}-${item.id}`] || '#ffffff'
+                          if (!colorOrder.includes(c)) colorOrder.push(c)
+                        })
+                        const sorted = [...doneItems].sort((a, b) => {
+                          const ca = heartColors[`${activeMonth}-${a.id}`] || '#ffffff'
+                          const cb = heartColors[`${activeMonth}-${b.id}`] || '#ffffff'
+                          return colorOrder.indexOf(ca) - colorOrder.indexOf(cb)
+                        })
+                        return sorted
+                      })().map(item => {
                         const key = `${activeMonth}-${item.id}`
                         const heartColor = heartColors[key] || '#ffffff'
                         const isPickerOpen = colorPickerOpen === key
@@ -719,8 +758,34 @@ export default function App() {
                     ))}
                   </div>
                 )}
+                {/* 結轉提示：如果這是目前月份，且上個月有未完成事項 */}
+                {(() => {
+                  if (activeMonth !== currentMonthId) return null
+                  const idx = MONTHS.findIndex(m => m.id === currentMonthId)
+                  if (idx <= 0) return null
+                  const prevSection = sections[idx - 1]
+                  const prevOrig = MONTHS[idx - 1]
+                  const carried = prevSection.items.filter(i => !i.done)
+                  if (carried.length === 0) return null
+                  return (
+                    <div style={{ marginTop:14, background:'#fde8e3', border:`1px solid ${prevOrig.color}55`, borderRadius:8, overflow:'hidden' }}>
+                      <div style={{ padding:'9px 16px', background:`${prevOrig.color}22`, fontSize:12, fontWeight:'bold', color:prevOrig.color }}>
+                        ⚠ 延續自{prevOrig.label}（{carried.length} 件未完成）
+                      </div>
+                      {carried.map((item, i) => (
+                        <div key={item.id} style={{ padding:'10px 16px', borderTop:'1px solid #f5e0db', display:'flex', gap:10, alignItems:'flex-start' }}>
+                          <button onClick={() => toggleDone(prevOrig.id, item.id)} style={{ width:18, height:18, borderRadius:4, flexShrink:0, marginTop:2, border:`2px solid ${prevOrig.color}77`, background:'transparent', cursor:'pointer' }} />
+                          <div>
+                            <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{item.text}</div>
+                            <div style={{ fontSize:11, color:'#888', marginTop:2 }}>{item.desc}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })()}
                 {/* 項目 */}
-                <div style={{ background:'#fff', borderRadius:'0 0 10px 10px', border:`1px solid ${activeOriginal.color}44`, borderTop:'none' }}>
+                <div style={{ background:'#fff', borderRadius:'0 0 10px 10px', border:`1px solid ${activeOriginal.color}44`, borderTop:'none', marginTop: activeMonth===currentMonthId ? 14 : 0 }}>
                   {activeData.items.filter(i => !i.done).length === 0 && (
                     <div style={{ padding:'28px', textAlign:'center', color:'#bbb', fontSize:13, fontStyle:'italic', borderRadius:'0 0 10px 10px' }}>
                       所有事項已完成
@@ -796,10 +861,10 @@ export default function App() {
               { id:'jan', label:'一月', color:'#2e6b5a' },
             ].map(m => (
               <a key={m.id} href={`#tl-${m.id}`}
-                style={{ display:'block', padding:'7px 10px', borderRadius:6, fontSize:13, fontWeight:'bold', color: m.color, background:'#fff', border:`1px solid ${m.color}44`, textDecoration:'none', textAlign:'center', transition:'all 0.15s' }}
-                onMouseEnter={e => { e.target.style.background=m.color; e.target.style.color='#fff'; }}
-                onMouseLeave={e => { e.target.style.background='#fff'; e.target.style.color=m.color; }}
-              >{m.label}</a>
+                style={{ display:'block', padding:'7px 10px', borderRadius:6, fontSize:13, fontWeight:'bold', color: m.id===currentMonthId ? '#fff' : m.color, background: m.id===currentMonthId ? m.color : '#fff', border:`1px solid ${m.color}44`, textDecoration:'none', textAlign:'center', transition:'all 0.15s', position:'relative' }}
+                onMouseEnter={e => { if(m.id!==currentMonthId){e.target.style.background=m.color; e.target.style.color='#fff';} }}
+                onMouseLeave={e => { if(m.id!==currentMonthId){e.target.style.background='#fff'; e.target.style.color=m.color;} }}
+              >{m.label}{m.id===currentMonthId && <span style={{fontSize:9, marginLeft:4}}>●現在</span>}</a>
             ))}
           </div>
 
@@ -837,8 +902,9 @@ export default function App() {
                 <div key={m.id} id={`tl-${m.id}`} style={{ marginBottom:36 }}>
                   {/* 月份標題 */}
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-                    <div style={{ width:12, height:12, borderRadius:'50%', background:m.color, flexShrink:0 }} />
+                    <div style={{ width:12, height:12, borderRadius:'50%', background:m.color, flexShrink:0, boxShadow: m.id===currentMonthId ? `0 0 0 3px ${m.color}33` : 'none' }} />
                     <div style={{ fontSize:18, fontWeight:'bold', color:m.color }}>{m.label}</div>
+                    {m.id===currentMonthId && <span style={{ fontSize:10, color:'#fff', background:m.color, padding:'2px 8px', borderRadius:10, fontWeight:'bold' }}>現在</span>}
                     <div style={{ flex:1, height:1, background:`${m.color}33` }} />
                     <div style={{ fontSize:11, color:'#bbb', fontFamily:'monospace' }}>{items.length} 件</div>
                   </div>
