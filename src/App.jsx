@@ -803,6 +803,13 @@ export default function App() {
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:14, fontWeight:'bold', lineHeight:1.4, color: item.done ? '#bbb' : '#1c1c1c', textDecoration: item.done ? 'line-through' : 'none' }}>{item.text}</div>
                             <div style={{ marginTop:5, fontSize:12.5, lineHeight:1.7, color: item.done ? '#ccc' : '#666' }}>{item.desc}</div>
+                            {item.attachment && (
+                              <a href={item.attachment} download
+                                style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:8, fontSize:12, padding:'5px 12px', background:activeOriginal.color, color:'#fff', borderRadius:5, textDecoration:'none', fontWeight:'bold' }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14"/></svg>
+                                {item.attachmentLabel || '下載附件'}
+                              </a>
+                            )}
                             {isEd ? (
                               <div style={{ marginTop:9 }}>
                                 <textarea ref={noteRef} value={item.note} onChange={e => updateNote(activeMonth, item.id, e.target.value)} placeholder="記錄進度、聯絡結果、注意事項…" style={{ width:'100%', minHeight:68, border:`1px solid ${activeOriginal.color}66`, borderRadius:5, padding:'7px 10px', fontSize:12.5, fontFamily:'Georgia,serif', color:'#333', resize:'vertical', background:'#fdfcfa', boxSizing:'border-box', outline:'none', lineHeight:1.5 }} />
