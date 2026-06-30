@@ -51,6 +51,21 @@ const INIT = {
     { id:'B11303063', name:'鄭學澤', dept:'經濟系', grade:4, left:true, leftReason:'放棄（114-1）' },
     { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, left:true, leftReason:'畢業（114，首屆）' },
   ],
+  admin: [
+    { id:'ad1', name:'林儀欣', note:'人事室二組／差勤', email:'yhlin1012@ntu.edu.tw', phone:'66208' },
+    { id:'ad2', name:'李奕萱', note:'人事室四組', email:'liyihsuan@ntu.edu.tw', phone:'69939' },
+    { id:'ad3', name:'藍雅環', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'' },
+    { id:'ad4', name:'林家民', note:'註冊組／申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207' },
+    { id:'ad5', name:'王冠盈', note:'課務組／課程異動', email:'kywang@ntu.edu.tw', phone:'62388#303' },
+  ],
+  deptContacts: [
+    { id:'dc1', name:'官凌蕙', note:'政治系', email:'kuanlh1124@ntu.edu.tw', phone:'55738' },
+    { id:'dc2', name:'吳孟珊', note:'經濟系', email:'mswu@ntu.edu.tw', phone:'68446' },
+    { id:'dc3', name:'黃瑜焄', note:'社會系', email:'yushuang@ntu.edu.tw', phone:'61217' },
+    { id:'dc4', name:'翁小雯', note:'社工系', email:'ntusw@ntu.edu.tw', phone:'61242' },
+    { id:'dc5', name:'林錦屏', note:'新聞所', email:'cpl@ntu.edu.tw', phone:'63131' },
+    { id:'dc6', name:'江宜津', note:'國發所', email:'icchiang@ntu.edu.tw', phone:'63320' },
+  ],
   students114: [
     { id:'B13302107', name:'孫珮珈', dept:'政治系政論組', grade:2, left:false, leftReason:'' },
     { id:'B12302144', name:'黃彩慈', dept:'政治系政論組', grade:3, left:false, leftReason:'' },
@@ -204,6 +219,60 @@ function CommitteeContent({ color, accent, members, onAdd, onRemove }) {
             <div style={{ fontSize:12, color:'#555', fontFamily:'monospace' }}>{m.email}</div>
             <div style={{ display:'flex', gap:5 }}>
               <SingleCopy email={m.email} />
+              <button onClick={() => onRemove(m.id)} style={{ fontSize:10, padding:'2px 5px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ── 行政窗口內容（含分機）────────────────────────────────────────────────────
+function AdminContent({ color, accent, members, onAdd, onRemove }) {
+  const [adding, setAdding] = useState(false)
+  const [form, setForm] = useState({ name:'', note:'', phone:'', email:'' })
+
+  function handleAdd() {
+    if (!form.name) return
+    onAdd({ id: uid(), ...form })
+    setForm({ name:'', note:'', phone:'', email:'' })
+    setAdding(false)
+  }
+
+  return (
+    <div>
+      <div style={{ display:'flex', justifyContent:'flex-end', gap:8, marginBottom:10 }}>
+        <CopyBtn emails={members.filter(m=>m.email).map(m=>m.email)} color={color} />
+        <button onClick={() => setAdding(a=>!a)}
+          style={{ fontSize:12, width:26, height:26, border:`1px solid ${color}`, borderRadius:4, background:'#fff', color, cursor:'pointer', fontWeight:'bold' }}>
+          {adding ? '✕' : '+'}
+        </button>
+      </div>
+      {adding && (
+        <div style={{ background:accent, border:`1px solid ${color}44`, borderRadius:8, padding:'12px 14px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
+          {[['姓名 *','name',90,'姓名'],['業務備註','note',130,'如：差勤'],['分機','phone',90,'如：66208'],['Email','email',190,'xxx@ntu.edu.tw']].map(([label,key,w,ph]) => (
+            <div key={key} style={{ display:'flex', flexDirection:'column', gap:3 }}>
+              <label style={{ fontSize:10, color:'#666' }}>{label}</label>
+              <input value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))} placeholder={ph}
+                style={{ fontSize:12, padding:'4px 7px', border:'1px solid #ddd', borderRadius:4, width:w, outline:'none' }} />
+            </div>
+          ))}
+          <button onClick={handleAdd} style={{ fontSize:12, padding:'5px 14px', background:color, color:'#fff', border:'none', borderRadius:4, cursor:'pointer', height:28 }}>新增</button>
+        </div>
+      )}
+      <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'100px 140px 90px 1fr auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
+          {['姓名','業務','分機','Email',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+        </div>
+        {members.map((m, i) => (
+          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'100px 140px 90px 1fr auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+            <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{m.name}</div>
+            <div style={{ fontSize:11.5, color:'#666' }}>{m.note}</div>
+            <div style={{ fontSize:11.5, color:'#888', fontFamily:'monospace' }}>{m.phone || '—'}</div>
+            <div style={{ fontSize:11.5, color:'#555', fontFamily:'monospace' }}>{m.email || '（待補）'}</div>
+            <div style={{ display:'flex', gap:5 }}>
+              {m.email && <SingleCopy email={m.email} />}
               <button onClick={() => onRemove(m.id)} style={{ fontSize:10, padding:'2px 5px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
             </div>
           </div>
@@ -378,7 +447,11 @@ export default function Contacts() {
   const s113active = data.students113.filter(s=>!s.left).length
   const s114active = data.students114.filter(s=>!s.left).length
 
-  const CARDS = [
+  const ROW1 = [
+    { id:'admin',   label:'行政窗口',       color:'#5a3a8a', count:`${data.admin.length} 人` },
+    { id:'dept',    label:'各系所選課窗口', color:'#2e6b5a', count:`${data.deptContacts.length} 人` },
+  ]
+  const ROW2 = [
     { id:'college', label:'院學士審查委員', color:'#b5451b', count:`${data.collegeCommittee.length} 人` },
     { id:'mentor',  label:'院學士導師',     color:'#b5451b', count:`${data.mentors.length} 人` },
     { id:'s113',    label:'113學生',        color:'#c47c1a', count:`在學 ${s113active} 人` },
@@ -386,6 +459,7 @@ export default function Contacts() {
     { id:'east',    label:'東亞學程委員',   color:'#8B5E3C', count:`${data.eastAsia.length} 人` },
     { id:'china',   label:'中國大陸委員',   color:'#4a7c59', count:`${data.china.length} 人` },
   ]
+  const CARDS = [...ROW1, ...ROW2]
 
   return (
     <div style={{ flex:1, overflowY:'auto', padding:'20px 24px 60px', fontFamily:"'Georgia','Noto Serif TC',serif" }}>
@@ -396,9 +470,15 @@ export default function Contacts() {
         {saving?'儲存中…':saved?'✓ 已儲存':'·'}
       </div>
 
-      {/* 卡片列 */}
+      {/* 卡片列 1：行政窗口 */}
+      <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginBottom:10 }}>
+        {ROW1.map(c => (
+          <Card key={c.id} {...c} isOpen={open===c.id} onClick={toggle} />
+        ))}
+      </div>
+      {/* 卡片列 2：院學士與學程 */}
       <div style={{ display:'flex', flexWrap:'wrap', gap:12, marginBottom:20 }}>
-        {CARDS.map(c => (
+        {ROW2.map(c => (
           <Card key={c.id} {...c} isOpen={open===c.id} onClick={toggle} />
         ))}
       </div>
@@ -406,6 +486,12 @@ export default function Contacts() {
       {/* 展開內容 */}
       {open && (
         <div style={{ background:'#fff', borderRadius:10, border:`2px solid ${CARDS.find(c=>c.id===open)?.color}44`, padding:'20px 22px', animation:'slideDown 0.18s ease' }}>
+          {open==='admin' && <AdminContent color="#5a3a8a" accent="#e8dcf5" members={data.admin}
+            onAdd={m=>updateList('admin',[...data.admin,m])}
+            onRemove={id=>updateList('admin',data.admin.filter(m=>m.id!==id))} />}
+          {open==='dept' && <AdminContent color="#2e6b5a" accent="#d3ebe1" members={data.deptContacts}
+            onAdd={m=>updateList('deptContacts',[...data.deptContacts,m])}
+            onRemove={id=>updateList('deptContacts',data.deptContacts.filter(m=>m.id!==id))} />}
           {open==='college' && <CommitteeContent color="#b5451b" accent="#fde8e3" members={data.collegeCommittee}
             onAdd={m=>updateList('collegeCommittee',[...data.collegeCommittee,m])}
             onRemove={id=>updateList('collegeCommittee',data.collegeCommittee.filter(m=>m.id!==id))} />}
