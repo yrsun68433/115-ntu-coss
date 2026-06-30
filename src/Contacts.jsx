@@ -52,11 +52,11 @@ const INIT = {
     { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, left:true, leftReason:'畢業（114，首屆）' },
   ],
   admin: [
-    { id:'ad1', name:'林儀欣', note:'人事室二組／差勤', email:'yhlin1012@ntu.edu.tw', phone:'66208' },
-    { id:'ad2', name:'李奕萱', note:'人事室四組', email:'liyihsuan@ntu.edu.tw', phone:'69939' },
-    { id:'ad3', name:'藍雅環', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'62388#206' },
-    { id:'ad4', name:'林家民', note:'註冊組／申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207' },
-    { id:'ad5', name:'王冠盈', note:'課務組／課程異動', email:'kywang@ntu.edu.tw', phone:'62388#303' },
+    { id:'ad1', name:'林儀欣', note:'人事室二組／差勤', email:'yhlin1012@ntu.edu.tw', phone:'66208', link:'' },
+    { id:'ad2', name:'李奕萱', note:'人事室四組', email:'liyihsuan@ntu.edu.tw', phone:'69939', link:'' },
+    { id:'ad3', name:'藍雅環', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'', link:'' },
+    { id:'ad4', name:'林家民', note:'註冊組／申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207', link:'' },
+    { id:'ad5', name:'王冠盈', note:'課務組／課程異動／排課', email:'kywang@ntu.edu.tw', phone:'62388#303', link:'https://gra206.aca.ntu.edu.tw/ntuweb/index.php/web-message' },
   ],
   deptContacts: [
     { id:'dc1', name:'官凌蕙', note:'政治系', email:'kuanlh1124@ntu.edu.tw', phone:'55738' },
@@ -231,12 +231,12 @@ function CommitteeContent({ color, accent, members, onAdd, onRemove }) {
 // ── 行政窗口內容（含分機）────────────────────────────────────────────────────
 function AdminContent({ color, accent, members, onAdd, onRemove }) {
   const [adding, setAdding] = useState(false)
-  const [form, setForm] = useState({ name:'', note:'', phone:'', email:'' })
+  const [form, setForm] = useState({ name:'', note:'', phone:'', email:'', link:'' })
 
   function handleAdd() {
     if (!form.name) return
     onAdd({ id: uid(), ...form })
-    setForm({ name:'', note:'', phone:'', email:'' })
+    setForm({ name:'', note:'', phone:'', email:'', link:'' })
     setAdding(false)
   }
 
@@ -251,7 +251,7 @@ function AdminContent({ color, accent, members, onAdd, onRemove }) {
       </div>
       {adding && (
         <div style={{ background:accent, border:`1px solid ${color}44`, borderRadius:8, padding:'12px 14px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
-          {[['姓名 *','name',90,'姓名'],['業務備註','note',130,'如：差勤'],['分機','phone',90,'如：66208'],['Email','email',190,'xxx@ntu.edu.tw']].map(([label,key,w,ph]) => (
+          {[['姓名 *','name',90,'姓名'],['業務備註','note',130,'如：排課、課務系統'],['分機','phone',90,'如：66208'],['Email','email',190,'xxx@ntu.edu.tw'],['業務說明連結','link',220,'https://…']].map(([label,key,w,ph]) => (
             <div key={key} style={{ display:'flex', flexDirection:'column', gap:3 }}>
               <label style={{ fontSize:10, color:'#666' }}>{label}</label>
               <input value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))} placeholder={ph}
@@ -262,15 +262,20 @@ function AdminContent({ color, accent, members, onAdd, onRemove }) {
         </div>
       )}
       <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'100px 140px 90px 1fr auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
-          {['姓名','業務','分機','Email',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+        <div style={{ display:'grid', gridTemplateColumns:'90px 130px 80px 1fr 60px auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
+          {['姓名','業務','分機','Email','連結',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
         </div>
         {members.map((m, i) => (
-          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'100px 140px 90px 1fr auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'90px 130px 80px 1fr 60px auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
             <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{m.name}</div>
-            <div style={{ fontSize:11.5, color:'#666' }}>{m.note}</div>
-            <div style={{ fontSize:11.5, color:'#888', fontFamily:'monospace' }}>{m.phone || '—'}</div>
-            <div style={{ fontSize:11.5, color:'#555', fontFamily:'monospace' }}>{m.email || '（待補）'}</div>
+            <div style={{ fontSize:11, color:'#666' }}>{m.note}</div>
+            <div style={{ fontSize:11, color:'#888', fontFamily:'monospace' }}>{m.phone || '—'}</div>
+            <div style={{ fontSize:11, color:'#555', fontFamily:'monospace' }}>{m.email || '（待補）'}</div>
+            <div>
+              {m.link
+                ? <a href={m.link} target="_blank" rel="noopener noreferrer" style={{ fontSize:10.5, color, textDecoration:'underline' }}>查看</a>
+                : <span style={{ fontSize:10.5, color:'#ddd' }}>—</span>}
+            </div>
             <div style={{ display:'flex', gap:5 }}>
               {m.email && <SingleCopy email={m.email} />}
               <button onClick={() => onRemove(m.id)} style={{ fontSize:10, padding:'2px 5px', border:'1px solid #eee', borderRadius:3, background:'#fff', color:'#ccc', cursor:'pointer' }}>✕</button>
