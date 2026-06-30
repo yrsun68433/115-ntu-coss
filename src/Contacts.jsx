@@ -57,6 +57,7 @@ const INIT = {
     { id:'ad3', name:'藍雅環', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'', link:'' },
     { id:'ad4', name:'林家民', note:'註冊組／申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207', link:'' },
     { id:'ad5', name:'王冠盈', note:'課務組／課程異動／排課', email:'kywang@ntu.edu.tw', phone:'62388#303', link:'https://gra206.aca.ntu.edu.tw/ntuweb/index.php/web-message' },
+    { id:'ad6', name:'林佑宣', note:'註冊組／轉系雙主修審核（轉出方）', email:'yuhsuan405@ntu.edu.tw', phone:'62388轉219', link:'' },
   ],
   deptContacts: [
     { id:'dc1', name:'官凌蕙', note:'政治系', email:'kuanlh1124@ntu.edu.tw', phone:'55738' },
