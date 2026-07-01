@@ -777,7 +777,7 @@ export default function App() {
                           <button onClick={() => toggleDone(prevOrig.id, item.id)} style={{ width:18, height:18, borderRadius:4, flexShrink:0, marginTop:2, border:`2px solid ${prevOrig.color}77`, background:'transparent', cursor:'pointer' }} />
                           <div>
                             <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{item.text}</div>
-                            <div style={{ fontSize:11, color:'#888', marginTop:2 }}>{item.desc}</div>
+                            <div style={{ fontSize:11, color:'#888', marginTop:2, whiteSpace:'pre-wrap' }}>{item.desc}</div>
                           </div>
                         </div>
                       ))}
@@ -802,7 +802,7 @@ export default function App() {
                           </button>
                           <div style={{ flex:1, minWidth:0 }}>
                             <div style={{ fontSize:14, fontWeight:'bold', lineHeight:1.4, color: item.done ? '#bbb' : '#1c1c1c', textDecoration: item.done ? 'line-through' : 'none' }}>{item.text}</div>
-                            <div style={{ marginTop:5, fontSize:12.5, lineHeight:1.7, color: item.done ? '#ccc' : '#666' }}>{item.desc}</div>
+                            <div style={{ marginTop:5, fontSize:12.5, lineHeight:1.7, color: item.done ? '#ccc' : '#666', whiteSpace:'pre-wrap' }}>{item.desc}</div>
                             {item.attachment && (
                               <a href={item.attachment} download
                                 style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:8, fontSize:12, padding:'5px 12px', background:activeOriginal.color, color:'#fff', borderRadius:5, textDecoration:'none', fontWeight:'bold' }}>
