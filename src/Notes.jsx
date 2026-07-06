@@ -50,7 +50,7 @@ function NoteModal({ note, onSave, onClose }) {
 
   return (
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.4)', display:'flex', alignItems:'center', justifyContent:'center', zIndex:998 }}>
-      <div style={{ background: color, borderRadius:12, padding:'24px', width: size==='rect' ? 560 : 420, boxShadow:'0 8px 32px rgba(0,0,0,0.2)', display:'flex', flexDirection:'column', gap:12 }}>
+      <div style={{ background: color, borderRadius:12, padding:'24px', width: 420, boxShadow:'0 8px 32px rgba(0,0,0,0.2)', display:'flex', flexDirection:'column', gap:12 }}>
         {/* 工具列 */}
         <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
           {/* 顏色選 */}
@@ -76,7 +76,7 @@ function NoteModal({ note, onSave, onClose }) {
           style={{ fontSize:14, fontWeight:'bold', border:'none', borderBottom:'1px solid rgba(0,0,0,0.15)', background:'transparent', outline:'none', padding:'4px 2px', fontFamily:'Georgia,serif', color:'#1c1c1c' }} />
         {/* 內文 */}
         <textarea value={body} onChange={e=>setBody(e.target.value)} placeholder="記錄工作筆記、流程、注意事項…"
-          style={{ fontSize:13, border:'none', background:'rgba(0,0,0,0.04)', borderRadius:6, outline:'none', padding:'10px', fontFamily:'Georgia,serif', color:'#333', resize:'vertical', minHeight: size==='rect'?180:130, lineHeight:1.7 }} />
+          style={{ fontSize:13, border:'none', background:'rgba(0,0,0,0.04)', borderRadius:6, outline:'none', padding:'10px', fontFamily:'Georgia,serif', color:'#333', resize:'vertical', minHeight: size==='rect'?300:130, lineHeight:1.7 }} />
         {/* 按鈕 */}
         <div style={{ display:'flex', gap:8, justifyContent:'flex-end' }}>
           <button onClick={onClose} style={{ fontSize:12, padding:'6px 14px', border:'1px solid #ccc', borderRadius:4, background:'rgba(255,255,255,0.6)', color:'#666', cursor:'pointer' }}>取消</button>
@@ -98,8 +98,8 @@ function NoteCard({ note, index, onEdit, onDelete, onDragStart, onDragOver, onDr
       onDragOver={e => { e.preventDefault(); onDragOver(index) }}
       onDrop={() => onDrop(index)}
       style={{
-        width: isRect ? '100%' : 160,
-        minHeight: 150,
+        width: 160,
+        minHeight: isRect ? 280 : 150,
         background: note.color || '#fff9db',
         borderRadius:8,
         padding:'12px 14px',
@@ -110,7 +110,7 @@ function NoteCard({ note, index, onEdit, onDelete, onDragStart, onDragOver, onDr
         flexDirection:'column',
         gap:6,
         transition:'box-shadow 0.15s',
-        gridColumn: isRect ? '1 / -1' : 'auto',
+        gridColumn: 'auto',
       }}
       onMouseEnter={e => e.currentTarget.style.boxShadow='4px 6px 18px rgba(0,0,0,0.18)'}
       onMouseLeave={e => e.currentTarget.style.boxShadow='2px 3px 10px rgba(0,0,0,0.1)'}
@@ -287,12 +287,13 @@ export default function Notes() {
         </div>
       )}
 
-      {/* 各分類 */}
+      {/* 各分類：三欄並排，各自垂直延伸 */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:20, alignItems:'start' }}>
       {data.categories.map(cat => {
         const catNotes = data.notes.filter(n => n.catId === cat.id)
         const isEditing = editingCat?.id === cat.id
         return (
-          <div key={cat.id} style={{ marginBottom:32 }}>
+          <div key={cat.id} style={{ marginBottom:0 }}>
             {/* 分類標題 */}
             <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14, paddingBottom:8, borderBottom:`2px solid ${cat.color}44` }}>
               {isEditing ? (
@@ -329,7 +330,7 @@ export default function Notes() {
             {catNotes.length === 0 ? (
               <div style={{ color:'#ccc', fontSize:12, fontStyle:'italic', padding:'8px 0' }}>尚無筆記，點 ＋ 新增</div>
             ) : (
-              <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill, 160px)', gap:14 }}>
+              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
                 {catNotes.map((note, idx) => (
                   <NoteCard key={note.id} note={note} index={idx}
                     onEdit={setEditingNote}
@@ -344,6 +345,8 @@ export default function Notes() {
           </div>
         )
       })}
+
+      </div>
 
       {data.categories.length === 0 && (
         <div style={{ textAlign:'center', color:'#ccc', fontSize:14, marginTop:60, fontStyle:'italic' }}>
