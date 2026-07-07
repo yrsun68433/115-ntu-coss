@@ -712,19 +712,19 @@ export default function App() {
       {/* ── Topbar ── */}
       <div style={{ background:'#1c1c1c', color:'#f2ede6', padding:'16px 28px', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
-            <div>
-              <div style={{ fontSize:10, letterSpacing:'0.2em', color:'#888', fontFamily:'monospace', marginBottom:2 }}>115學年度 · 社科院</div>
-              <div style={{ fontSize:17, letterSpacing:'0.03em' }}>院學士 × 學分學程 工作紀錄</div>
-            </div>
-            <OrionConstellation items={orionItems} onChange={next => { setOrionItems(next); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData, next) }} />
+          <div>
+            <div style={{ fontSize:10, letterSpacing:'0.2em', color:'#888', fontFamily:'monospace', marginBottom:2 }}>115學年度 · 社科院</div>
+            <div style={{ fontSize:17, letterSpacing:'0.03em' }}>院學士 × 學分學程 工作紀錄</div>
           </div>
-          <div style={{ textAlign:'right' }}>
-            {activeTab === 'work'
-              ? <div style={{ fontFamily:'monospace', fontSize:20 }}>{totalDone}<span style={{color:'#555',fontSize:14}}>/{totalItems}</span> <span style={{fontSize:11,color:'#666'}}>完成</span></div>
-              : <div style={{ fontFamily:'monospace', fontSize:14, color:'#888' }}>支出 {fmt(grandSpent)} <span style={{color:'#555'}}>/ {fmt(grandTotal)}</span></div>
-            }
-            <div style={{ fontSize:10, color: statusColor, fontFamily:'monospace', marginTop:2 }}>{statusText}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:20 }}>
+            <OrionConstellation items={orionItems} onChange={next => { setOrionItems(next); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData, next) }} />
+            <div style={{ textAlign:'right' }}>
+              {activeTab === 'work'
+                ? <div style={{ fontFamily:'monospace', fontSize:20 }}>{totalDone}<span style={{color:'#555',fontSize:14}}>/{totalItems}</span> <span style={{fontSize:11,color:'#666'}}>完成</span></div>
+                : <div style={{ fontFamily:'monospace', fontSize:14, color:'#888' }}>支出 {fmt(grandSpent)} <span style={{color:'#555'}}>/ {fmt(grandTotal)}</span></div>
+              }
+              <div style={{ fontSize:10, color: statusColor, fontFamily:'monospace', marginTop:2 }}>{statusText}</div>
+            </div>
           </div>
         </div>
         <div style={{ display:'flex', gap:4 }}>
