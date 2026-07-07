@@ -171,7 +171,7 @@ const STUDENTS_114_LEFT = [
 
 // ── 通訊錄元件 ────────────────────────────────────────────────────────────────
 function CopyAllBtn({ emails, color }) {
-  const [copied, setCopied] = React.useState(false)
+  const [copied, setCopied] = useState(false)
   return (
     <button
       onClick={() => { navigator.clipboard.writeText(emails.join('; ')); setCopied(true); setTimeout(()=>setCopied(false),2000) }}
@@ -299,7 +299,7 @@ function CohortTable({ students, persist, sections, budgetState, freeNote, compl
 
 
 function MentorRow({ m, i }) {
-  const [copied, setCopied] = React.useState(false)
+  const [copied, setCopied] = useState(false)
   return (
     <div style={{ display:'grid', gridTemplateColumns:'160px 1fr auto', padding:'10px 16px', background: i%2===0 ? '#fff' : '#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:12 }}>
       <div style={{ fontSize:13.5, color:'#1c1c1c' }}>
@@ -316,7 +316,7 @@ function MentorRow({ m, i }) {
 }
 
 function LeftStudents({ students }) {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useState(false)
   return (
     <div style={{ marginTop:8 }}>
       <button onClick={() => setOpen(o => !o)}
@@ -414,11 +414,11 @@ const ORION_LINES = [[0,1],[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]
 const STAR_COLORS = ['#fff7ae','#aee8ff','#ffcfae','#cfaeff','#aeffcf','#ffaeae','#aecfff']
 
 function OrionConstellation({ items, onChange }) {
-  const [active, setActive] = React.useState(null) // starIdx 正在輸入
-  const [inputVal, setInputVal] = React.useState('')
-  const inputRef = React.useRef(null)
+  const [active, setActive] = useState(null) // starIdx 正在輸入
+  const [inputVal, setInputVal] = useState('')
+  const inputRef = useRef(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (active !== null && inputRef.current) inputRef.current.focus()
   }, [active])
 
