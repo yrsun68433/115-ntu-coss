@@ -400,11 +400,136 @@ function StatusRow({ s, i, stKey, noteKey, statusOptions, statusColors, persist,
 }
 
 
+// ── 獵戶座臨時事項 ────────────────────────────────────────────────────────────
+const ORION_STARS = [
+  { x:28, y:22, name:'參宿四', r:5.5 },
+  { x:72, y:18, name:'參宿五', r:4.5 },
+  { x:38, y:58, name:'參宿一', r:3.5 },
+  { x:50, y:63, name:'參宿二', r:4 },
+  { x:63, y:58, name:'參宿三', r:3.5 },
+  { x:22, y:100, name:'參宿六', r:5 },
+  { x:78, y:96, name:'參宿七', r:5.5 },
+]
+const ORION_LINES = [[0,1],[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]
+const STAR_COLORS = ['#fff7ae','#aee8ff','#ffcfae','#cfaeff','#aeffcf','#ffaeae','#aecfff']
+
+function OrionConstellation({ items, onChange }) {
+  const [active, setActive] = React.useState(null) // starIdx 正在輸入
+  const [inputVal, setInputVal] = React.useState('')
+  const inputRef = React.useRef(null)
+
+  React.useEffect(() => {
+    if (active !== null && inputRef.current) inputRef.current.focus()
+  }, [active])
+
+  function handleStarClick(idx) {
+    const item = items[idx]
+    if (item) {
+      // 已有內容：點擊完成並消失
+      const next = { ...items }
+      delete next[idx]
+      onChange(next)
+    } else {
+      // 空星：開始輸入
+      setActive(idx)
+      setInputVal('')
+    }
+  }
+
+  function handleSubmit(idx) {
+    if (!inputVal.trim()) { setActive(null); return }
+    const color = STAR_COLORS[Math.floor(Math.random() * STAR_COLORS.length)]
+    onChange({ ...items, [idx]: { text: inputVal.trim(), color } })
+    setActive(null)
+    setInputVal('')
+  }
+
+  const filled = Object.keys(items).length
+  const total = ORION_STARS.length
+
+  return (
+    <div style={{ position:'relative', display:'flex', alignItems:'center', gap:8 }}>
+      {/* SVG 星座圖 */}
+      <svg width={54} height={65} viewBox="0 0 100 120" style={{ flexShrink:0, cursor:'pointer' }}>
+        {/* 連線 */}
+        {ORION_LINES.map(([a,b], i) => {
+          const sa = ORION_STARS[a], sb = ORION_STARS[b]
+          const bothFilled = items[a] && items[b]
+          return (
+            <line key={i} x1={sa.x} y1={sa.y} x2={sb.x} y2={sb.y}
+              stroke={bothFilled ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.12)'}
+              strokeWidth={bothFilled ? 1.2 : 0.8} />
+          )
+        })}
+        {/* 星點 */}
+        {ORION_STARS.map((s, idx) => {
+          const item = items[idx]
+          const color = item ? item.color : 'rgba(255,255,255,0.25)'
+          return (
+            <g key={idx} onClick={() => handleStarClick(idx)} style={{ cursor:'pointer' }}>
+              <circle cx={s.x} cy={s.y} r={s.r + 4} fill="transparent" />
+              <circle cx={s.x} cy={s.y} r={s.r}
+                fill={color}
+                style={{ filter: item ? `drop-shadow(0 0 4px ${color})` : 'none', transition:'all 0.2s' }} />
+              {item && (
+                <circle cx={s.x} cy={s.y} r={s.r + 2}
+                  fill="none" stroke={color} strokeWidth={0.8} opacity={0.5} />
+              )}
+            </g>
+          )
+        })}
+      </svg>
+
+      {/* 提示文字 */}
+      {filled === 0 && (
+        <div style={{ fontSize:9, color:'rgba(255,255,255,0.25)', letterSpacing:'0.06em', lineHeight:1.4 }}>
+          點星星<br/>新增臨時事項
+        </div>
+      )}
+
+      {/* 輸入框（浮出） */}
+      {active !== null && (
+        <div style={{ position:'absolute', top:70, left:0, background:'#1c1c1c', border:'1px solid rgba(255,255,255,0.2)', borderRadius:8, padding:'10px 12px', zIndex:200, minWidth:200, boxShadow:'0 4px 20px rgba(0,0,0,0.5)' }}>
+          <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', marginBottom:6 }}>{ORION_STARS[active].name} · 臨時事項</div>
+          <input ref={inputRef} value={inputVal} onChange={e=>setInputVal(e.target.value)}
+            onKeyDown={e => { if(e.key==='Enter') handleSubmit(active); if(e.key==='Escape') setActive(null) }}
+            placeholder="輸入事項，Enter 確認"
+            style={{ width:'100%', fontSize:12, background:'rgba(255,255,255,0.08)', border:'1px solid rgba(255,255,255,0.15)', borderRadius:4, color:'#fff', padding:'5px 8px', outline:'none', fontFamily:'Georgia,serif', boxSizing:'border-box' }} />
+          <div style={{ display:'flex', justifyContent:'flex-end', gap:6, marginTop:8 }}>
+            <button onClick={() => setActive(null)} style={{ fontSize:10, padding:'3px 8px', background:'transparent', border:'1px solid rgba(255,255,255,0.2)', borderRadius:3, color:'rgba(255,255,255,0.5)', cursor:'pointer' }}>取消</button>
+            <button onClick={() => handleSubmit(active)} style={{ fontSize:10, padding:'3px 10px', background:'rgba(255,255,255,0.15)', border:'none', borderRadius:3, color:'#fff', cursor:'pointer' }}>確認</button>
+          </div>
+        </div>
+      )}
+
+      {/* 已填事項列表（星星旁邊） */}
+      {filled > 0 && (
+        <div style={{ display:'flex', flexDirection:'column', gap:3, maxWidth:160 }}>
+          {ORION_STARS.map((s, idx) => {
+            const item = items[idx]
+            if (!item) return null
+            return (
+              <div key={idx} style={{ display:'flex', alignItems:'center', gap:5 }}>
+                <span style={{ color: item.color, fontSize:10 }}>★</span>
+                <span style={{ fontSize:10.5, color:'rgba(255,255,255,0.85)', lineHeight:1.3, flex:1 }}>{item.text}</span>
+                <button onClick={() => handleStarClick(idx)}
+                  style={{ fontSize:9, color:'rgba(255,255,255,0.3)', background:'transparent', border:'none', cursor:'pointer', padding:'0 2px' }}>✓</button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+
 export default function App() {
   const [sections, setSections]           = useState(null)
   const [budgetState, setBudgetState]     = useState(null)
   const [freeNote, setFreeNote]           = useState('')
   const [activeTab, setActiveTab]         = useState('work')
+  const [orionItems, setOrionItems]       = useState({}) // { starIdx: { text, color } | null }
   const [activeMonth, setActiveMonth]     = useState(null)
   const [editingNote, setEditingNote]     = useState(null)
   const [completedNotes, setCompletedNotes] = useState({})
@@ -458,6 +583,7 @@ export default function App() {
           if (saved.statusData) setStatusData(saved.statusData)
           if (saved.currentYear) setCurrentYear(saved.currentYear)
           if (saved.currentMonthId) setCurrentMonthId(saved.currentMonthId)
+          if (saved.orionItems) setOrionItems(saved.orionItems)
         } else {
           setSections(deepClone(MONTHS))
           setBudgetState(initBudgetState())
@@ -478,13 +604,14 @@ export default function App() {
   useEffect(() => { if (editingBudgetNote && budgetNoteRef.current) budgetNoteRef.current.focus() }, [editingBudgetNote])
 
   // ── 存檔 ────────────────────────────────────────────────────────────────────
-  async function persist(sec, bud, fn, cn, hc, sd) {
+  async function persist(sec, bud, fn, cn, hc, sd, oi) {
     setSaving(true)
     const _cn = cn !== undefined ? cn : completedNotes
     const _hc = hc !== undefined ? hc : heartColors
     const _sd = sd !== undefined ? sd : statusData
+    const _oi = oi !== undefined ? oi : orionItems
     try {
-      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, statusData: _sd, currentYear, currentMonthId, updatedAt: new Date().toISOString() })
+      await storageSet(DB_KEY, { sections: sec, budget: bud, freeNote: fn, completedNotes: _cn, heartColors: _hc, statusData: _sd, currentYear, currentMonthId, orionItems: _oi, updatedAt: new Date().toISOString() })
       setJustSaved(true)
       setTimeout(() => setJustSaved(false), 1800)
     } catch(e) { console.error('存檔失敗', e) }
@@ -585,9 +712,12 @@ export default function App() {
       {/* ── Topbar ── */}
       <div style={{ background:'#1c1c1c', color:'#f2ede6', padding:'16px 28px', flexShrink:0 }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
-          <div>
-            <div style={{ fontSize:10, letterSpacing:'0.2em', color:'#888', fontFamily:'monospace', marginBottom:2 }}>115學年度 · 社科院</div>
-            <div style={{ fontSize:17, letterSpacing:'0.03em' }}>院學士 × 學分學程 工作紀錄</div>
+          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+            <div>
+              <div style={{ fontSize:10, letterSpacing:'0.2em', color:'#888', fontFamily:'monospace', marginBottom:2 }}>115學年度 · 社科院</div>
+              <div style={{ fontSize:17, letterSpacing:'0.03em' }}>院學士 × 學分學程 工作紀錄</div>
+            </div>
+            <OrionConstellation items={orionItems} onChange={next => { setOrionItems(next); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData, next) }} />
           </div>
           <div style={{ textAlign:'right' }}>
             {activeTab === 'work'
