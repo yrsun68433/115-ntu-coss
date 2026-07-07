@@ -450,15 +450,15 @@ function OrionConstellation({ items, onChange }) {
   return (
     <div style={{ position:'relative', display:'flex', alignItems:'center', gap:8 }}>
       {/* SVG 星座圖 */}
-      <svg width={54} height={65} viewBox="0 0 100 120" style={{ flexShrink:0, cursor:'pointer' }}>
+      <svg width={100} height={120} viewBox="0 0 100 120" style={{ flexShrink:0, cursor:'pointer' }}>
         {/* 連線 */}
         {ORION_LINES.map(([a,b], i) => {
           const sa = ORION_STARS[a], sb = ORION_STARS[b]
           const bothFilled = items[a] && items[b]
           return (
             <line key={i} x1={sa.x} y1={sa.y} x2={sb.x} y2={sb.y}
-              stroke={bothFilled ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.12)'}
-              strokeWidth={bothFilled ? 1.2 : 0.8} />
+              stroke={bothFilled ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.18)'}
+              strokeWidth={bothFilled ? 1.8 : 1.2} />
           )
         })}
         {/* 星點 */}
@@ -467,13 +467,13 @@ function OrionConstellation({ items, onChange }) {
           const color = item ? item.color : 'rgba(255,255,255,0.25)'
           return (
             <g key={idx} onClick={() => handleStarClick(idx)} style={{ cursor:'pointer' }}>
-              <circle cx={s.x} cy={s.y} r={s.r + 4} fill="transparent" />
-              <circle cx={s.x} cy={s.y} r={s.r}
+              <circle cx={s.x} cy={s.y} r={s.r + 7} fill="transparent" />
+              <circle cx={s.x} cy={s.y} r={s.r * 1.6}
                 fill={color}
                 style={{ filter: item ? `drop-shadow(0 0 4px ${color})` : 'none', transition:'all 0.2s' }} />
               {item && (
-                <circle cx={s.x} cy={s.y} r={s.r + 2}
-                  fill="none" stroke={color} strokeWidth={0.8} opacity={0.5} />
+                <circle cx={s.x} cy={s.y} r={s.r * 1.6 + 3}
+                  fill="none" stroke={color} strokeWidth={1} opacity={0.5} />
               )}
             </g>
           )
@@ -489,7 +489,7 @@ function OrionConstellation({ items, onChange }) {
 
       {/* 輸入框（浮出） */}
       {active !== null && (
-        <div style={{ position:'absolute', top:70, left:0, background:'#1c1c1c', border:'1px solid rgba(255,255,255,0.2)', borderRadius:8, padding:'10px 12px', zIndex:200, minWidth:200, boxShadow:'0 4px 20px rgba(0,0,0,0.5)' }}>
+        <div style={{ position:'absolute', top:130, left:0, background:'#1c1c1c', border:'1px solid rgba(255,255,255,0.2)', borderRadius:8, padding:'10px 12px', zIndex:200, minWidth:200, boxShadow:'0 4px 20px rgba(0,0,0,0.5)' }}>
           <div style={{ fontSize:10, color:'rgba(255,255,255,0.5)', marginBottom:6 }}>{ORION_STARS[active].name} · 臨時事項</div>
           <input ref={inputRef} value={inputVal} onChange={e=>setInputVal(e.target.value)}
             onKeyDown={e => { if(e.key==='Enter') handleSubmit(active); if(e.key==='Escape') setActive(null) }}
