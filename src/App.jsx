@@ -402,13 +402,13 @@ function StatusRow({ s, i, stKey, noteKey, statusOptions, statusColors, persist,
 
 // ── 獵戶座臨時事項 ────────────────────────────────────────────────────────────
 const ORION_STARS = [
-  { x:28, y:22, name:'參宿四', r:5.5 },
-  { x:72, y:18, name:'參宿五', r:4.5 },
-  { x:38, y:58, name:'參宿一', r:3.5 },
-  { x:50, y:63, name:'參宿二', r:4 },
-  { x:63, y:58, name:'參宿三', r:3.5 },
-  { x:22, y:100, name:'參宿六', r:5 },
-  { x:78, y:96, name:'參宿七', r:5.5 },
+  { x:22, y:72, name:'參宿四', r:5.5 },
+  { x:18, y:28, name:'參宿五', r:4.5 },
+  { x:58, y:62, name:'參宿一', r:3.5 },
+  { x:63, y:50, name:'參宿二', r:4.0 },
+  { x:58, y:37, name:'參宿三', r:3.5 },
+  { x:100, y:78, name:'參宿六', r:5.0 },
+  { x:96, y:22, name:'參宿七', r:5.5 },
 ]
 const ORION_LINES = [[0,1],[0,2],[1,4],[2,3],[3,4],[2,5],[4,6]]
 const STAR_COLORS = ['#fff7ae','#aee8ff','#ffcfae','#cfaeff','#aeffcf','#ffaeae','#aecfff']
@@ -450,7 +450,7 @@ function OrionConstellation({ items, onChange }) {
   return (
     <div style={{ position:'relative', display:'flex', alignItems:'center', gap:8 }}>
       {/* SVG 星座圖 */}
-      <svg width={100} height={120} viewBox="0 0 100 120" style={{ flexShrink:0, cursor:'pointer' }}>
+      <svg width={160} height={90} viewBox="0 0 120 100" style={{ flexShrink:0, cursor:'pointer' }}>
         {/* 連線 */}
         {ORION_LINES.map(([a,b], i) => {
           const sa = ORION_STARS[a], sb = ORION_STARS[b]
@@ -716,8 +716,9 @@ export default function App() {
             <div style={{ fontSize:10, letterSpacing:'0.2em', color:'#888', fontFamily:'monospace', marginBottom:2 }}>115學年度 · 社科院</div>
             <div style={{ fontSize:17, letterSpacing:'0.03em' }}>院學士 × 學分學程 工作紀錄</div>
           </div>
-          <div style={{ display:'flex', alignItems:'center', gap:20 }}>
-            <OrionConstellation items={orionItems} onChange={next => { setOrionItems(next); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData, next) }} />
+          {/* 中間：獵戶座 */}
+          <OrionConstellation items={orionItems} onChange={next => { setOrionItems(next); persist(sections, budgetState, freeNote, completedNotes, heartColors, statusData, next) }} />
+          <div style={{ display:'flex', alignItems:'center', gap:16 }}>
             <div style={{ textAlign:'right' }}>
               {activeTab === 'work'
                 ? <div style={{ fontFamily:'monospace', fontSize:20 }}>{totalDone}<span style={{color:'#555',fontSize:14}}>/{totalItems}</span> <span style={{fontSize:11,color:'#666'}}>完成</span></div>
