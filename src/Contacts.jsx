@@ -52,13 +52,13 @@ const INIT = {
     { id:'B11310013', name:'胡傑凱', dept:'社會系', grade:4, left:true, leftReason:'畢業（114，首屆）' },
   ],
   admin: [
-    { id:'ad1', name:'林儀欣', note:'人事室二組／差勤', email:'yhlin1012@ntu.edu.tw', phone:'66208', link:'' },
-    { id:'ad2', name:'李奕萱', note:'人事室四組', email:'liyihsuan@ntu.edu.tw', phone:'69939', link:'' },
-    { id:'ad3', name:'藍雅環 股長', note:'註冊組／證書製發', email:'lan@ntu.edu.tw', phone:'62388#206', link:'' },
-    { id:'ad1', name:'陳建吉 股長', note:'教務處第三股／資訊組', email:'ajaxchen@ntu.edu.tw', phone:'63366#25602', link:'' },
-    { id:'ad4', name:'林家民', note:'註冊組／申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207', link:'' },
-    { id:'ad5', name:'王冠盈', note:'課務組／課程異動／排課', email:'kywang@ntu.edu.tw', phone:'62388#303', link:'https://gra206.aca.ntu.edu.tw/ntuweb/index.php/web-message' },
-    { id:'ad6', name:'林佑宣', note:'註冊組／轉系雙主修審核（轉出方）', email:'yuhsuan405@ntu.edu.tw', phone:'62388轉219', link:'' },
+    { id:'ad1', name:'林儀欣', dept:'人事室二組', duty:'差勤', email:'yhlin1012@ntu.edu.tw', phone:'66208', link:'' },
+    { id:'ad2', name:'李奕萱', dept:'人事室四組', duty:'辦卡等業務', email:'liyihsuan@ntu.edu.tw', phone:'69939', link:'' },
+    { id:'ad3', name:'藍雅環', dept:'註冊組', duty:'證書製發', email:'lan@ntu.edu.tw', phone:'62388#206', link:'' },
+    { id:'ad7', name:'陳先生', dept:'教務處第三股／資訊組', duty:'系統業務', email:'ajaxchen@ntu.edu.tw', phone:'63366#25602', link:'' },
+    { id:'ad4', name:'林家民', dept:'註冊組', duty:'申請人數查詢', email:'cmlin@ntu.edu.tw', phone:'62388#207', link:'' },
+    { id:'ad5', name:'王冠盈', dept:'課務組', duty:'課程異動／排課', email:'kywang@ntu.edu.tw', phone:'62388#303', link:'https://gra206.aca.ntu.edu.tw/ntuweb/index.php/web-message' },
+    { id:'ad6', name:'林佑宣', dept:'註冊組', duty:'轉系雙主修審核（轉出方）', email:'yuhsuan405@ntu.edu.tw', phone:'62388轉219', link:'' },
   ],
   deptContacts: [
     { id:'dc1', name:'官凌蕙', note:'政治系', email:'kuanlh1124@ntu.edu.tw', phone:'55738' },
@@ -67,6 +67,37 @@ const INIT = {
     { id:'dc4', name:'翁小雯', note:'社工系', email:'ntusw@ntu.edu.tw', phone:'61242' },
     { id:'dc5', name:'林錦屏', note:'新聞所', email:'cpl@ntu.edu.tw', phone:'63131' },
     { id:'dc6', name:'江宜津', note:'國發所', email:'icchiang@ntu.edu.tw', phone:'63320' },
+  ],
+  students115: [
+    // 社工系
+    { id:'B14310007', name:'劉珈仔', dept:'社工系', left:false, leftReason:'' },
+    { id:'B14310046', name:'劉珈豪', dept:'社工系', left:false, leftReason:'' },
+    { id:'B13310055', name:'賴伯恩', dept:'社工系', left:false, leftReason:'' },
+    // 社會系
+    { id:'B14305008', name:'陳怡璇', dept:'社會系', left:false, leftReason:'' },
+    { id:'B14305009', name:'章翊琳', dept:'社會系', left:false, leftReason:'' },
+    { id:'B14305017', name:'辛家樂', dept:'社會系', left:false, leftReason:'' },
+    { id:'B14305019', name:'邱奕樺', dept:'社會系', left:false, leftReason:'' },
+    { id:'B14305037', name:'呂禹萱', dept:'社會系', left:false, leftReason:'' },
+    { id:'B13305049', name:'潘善彥', dept:'社會系', left:false, leftReason:'' },
+    // 政治系
+    { id:'B14302102', name:'劉千瑩', dept:'政治系政治理論組', left:false, leftReason:'' },
+    { id:'B13302118', name:'張芹榛', dept:'政治系政論組', left:false, leftReason:'' },
+    { id:'B14302202', name:'呂以寬', dept:'政治系國際關係組', left:false, leftReason:'' },
+    { id:'B14302268', name:'王智永', dept:'政治系國際關係組', left:false, leftReason:'' },
+    { id:'B13302254', name:'吳善宇', dept:'政治系國際關係組', left:false, leftReason:'' },
+    // 經濟系
+    { id:'B14303074', name:'董博安', dept:'經濟系', left:false, leftReason:'' },
+    { id:'B13303028', name:'陳鴻凱', dept:'經濟系', left:false, leftReason:'' },
+    { id:'B13303054', name:'邱薇臻', dept:'經濟系', left:false, leftReason:'' },
+    { id:'B13303133', name:'邱苡晨', dept:'經濟系', left:false, leftReason:'' },
+    // 外系所
+    { id:'B13104048', name:'陳宥瑄', dept:'哲學系外系所', left:false, leftReason:'' },
+    { id:'B12204033', name:'施卲', dept:'地質科學系外系所', left:false, leftReason:'' },
+    { id:'B14602031', name:'陳以恩', dept:'生物環境系統工程學系外系所', left:false, leftReason:'' },
+    { id:'B14602055', name:'游茗媛', dept:'生物環境系統工程學系外系所', left:false, leftReason:'' },
+    { id:'B14607017', name:'陳叡羲', dept:'農業經濟學系外系所', left:false, leftReason:'' },
+    { id:'B13610050', name:'趙予晨', dept:'生物產業傳播暨發展學系外系所', left:false, leftReason:'' },
   ],
   students114: [
     { id:'B13302107', name:'孫珮珈', dept:'政治系政論組', grade:2, left:false, leftReason:'' },
@@ -233,12 +264,12 @@ function CommitteeContent({ color, accent, members, onAdd, onRemove }) {
 // ── 行政窗口內容（含分機）────────────────────────────────────────────────────
 function AdminContent({ color, accent, members, onAdd, onRemove }) {
   const [adding, setAdding] = useState(false)
-  const [form, setForm] = useState({ name:'', note:'', phone:'', email:'', link:'' })
+  const [form, setForm] = useState({ name:'', dept:'', duty:'', phone:'', email:'', link:'' })
 
   function handleAdd() {
     if (!form.name) return
     onAdd({ id: uid(), ...form })
-    setForm({ name:'', note:'', phone:'', email:'', link:'' })
+    setForm({ name:'', dept:'', duty:'', phone:'', email:'', link:'' })
     setAdding(false)
   }
 
@@ -253,7 +284,7 @@ function AdminContent({ color, accent, members, onAdd, onRemove }) {
       </div>
       {adding && (
         <div style={{ background:accent, border:`1px solid ${color}44`, borderRadius:8, padding:'12px 14px', marginBottom:10, display:'flex', gap:8, flexWrap:'wrap', alignItems:'flex-end' }}>
-          {[['姓名 *','name',90,'姓名'],['業務備註','note',130,'如：排課、課務系統'],['分機','phone',90,'如：66208'],['Email','email',190,'xxx@ntu.edu.tw'],['業務說明連結','link',220,'https://…']].map(([label,key,w,ph]) => (
+          {[['姓名 *','name',90,'姓名'],['單位','dept',120,'如：課務組'],['業務','duty',120,'如：課程異動'],['分機','phone',90,'如：66208'],['Email','email',190,'xxx@ntu.edu.tw'],['業務說明連結','link',220,'https://…']].map(([label,key,w,ph]) => (
             <div key={key} style={{ display:'flex', flexDirection:'column', gap:3 }}>
               <label style={{ fontSize:10, color:'#666' }}>{label}</label>
               <input value={form[key]} onChange={e=>setForm(f=>({...f,[key]:e.target.value}))} placeholder={ph}
@@ -264,13 +295,14 @@ function AdminContent({ color, accent, members, onAdd, onRemove }) {
         </div>
       )}
       <div style={{ background:'#fff', borderRadius:8, border:'1px solid #e0dbd4', overflow:'hidden' }}>
-        <div style={{ display:'grid', gridTemplateColumns:'90px 130px 80px 1fr 60px auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
-          {['姓名','業務','分機','Email','連結',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
+        <div style={{ display:'grid', gridTemplateColumns:'80px 110px 110px 80px 1fr 50px auto', background:'#1c1c1c', padding:'7px 14px', gap:8 }}>
+          {['姓名','單位','業務','分機','Email','連結',''].map((h,i) => <div key={i} style={{ fontSize:11, fontWeight:'bold', color:'#f2ede6' }}>{h}</div>)}
         </div>
         {members.map((m, i) => (
-          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'90px 130px 80px 1fr 60px auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
+          <div key={m.id} style={{ display:'grid', gridTemplateColumns:'80px 110px 110px 80px 1fr 50px auto', padding:'9px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
             <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{m.name}</div>
-            <div style={{ fontSize:11, color:'#666' }}>{m.note}</div>
+            <div style={{ fontSize:11, color:'#666' }}>{m.dept || m.note || ''}</div>
+            <div style={{ fontSize:11, color:'#555' }}>{m.duty || ''}</div>
             <div style={{ fontSize:11, color:'#888', fontFamily:'monospace' }}>{m.phone || '—'}</div>
             <div style={{ fontSize:11, color:'#555', fontFamily:'monospace' }}>{m.email || '（待補）'}</div>
             <div>
@@ -341,12 +373,18 @@ function MentorContent({ mentors, onAdd, onRemove }) {
   )
 }
 
+// 從學號算入學年：B14xxx → 114, B13xxx → 113, B12xxx → 112
+function getEnrollYear(id) {
+  const m = id.match(/^B(\d{2})/)
+  return m ? 100 + parseInt(m[1], 10) : 114
+}
+
 // ── 學生內容 ──────────────────────────────────────────────────────────────────
-function StudentContent({ cohort, students113, students114, onMarkLeft, onRestoreLeft }) {
+function StudentContent({ cohort, students113, students114, students115, currentYear, onMarkLeft, onRestoreLeft }) {
   const [leaveTarget, setLeaveTarget] = useState(null)
   const [showLeft, setShowLeft] = useState(false)
-  const students = cohort === '113' ? students113 : students114
-  const color = cohort === '113' ? '#b5451b' : '#2e6b8a'
+  const students = cohort === '113' ? students113 : cohort === '114' ? students114 : students115
+  const color = cohort === '113' ? '#b5451b' : cohort === '114' ? '#2e6b8a' : '#4a7c59'
 
   function StudentTable({ students, showLeft, setShowLeft, cohort, color }) {
     const active = students.filter(s=>!s.left)
@@ -365,7 +403,7 @@ function StudentContent({ cohort, students113, students114, onMarkLeft, onRestor
             <div key={s.id} style={{ display:'grid', gridTemplateColumns:'85px 90px 130px 1fr 52px', padding:'8px 14px', background: i%2===0?'#fff':'#f9f6f2', borderTop:'1px solid #f0ede8', alignItems:'center', gap:8 }}>
               <div style={{ fontSize:10.5, color:'#aaa', fontFamily:'monospace' }}>{s.id}</div>
               <div style={{ fontSize:13, fontWeight:'bold', color:'#1c1c1c' }}>{s.name}</div>
-              <div style={{ fontSize:11, color:'#666' }}>{s.dept} {s.grade}年</div>
+              <div style={{ fontSize:11, color:'#666' }}>{s.dept} {currentYear - getEnrollYear(s.id) + 1}年</div>
               <div style={{ fontSize:11.5, color:'#555', fontFamily:'monospace' }}>{s.id}@ntu.edu.tw</div>
               <button onClick={() => setLeaveTarget({...s, cohort})}
                 style={{ fontSize:10, padding:'2px 5px', border:'1px solid #f0ede8', borderRadius:3, background:'#fff', color:'#bbb', cursor:'pointer' }}>離開</button>
@@ -421,10 +459,22 @@ export default function Contacts() {
   const [open, setOpen] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [currentYear, setCurrentYear] = useState(115)
 
   useEffect(() => {
     async function load() {
-      try { const r = await storageGet(CONTACTS_KEY); setData(r || INIT) }
+      try {
+        const r = await storageGet(CONTACTS_KEY)
+        // 如果已有資料但沒有 students115，自動補上
+        if (r && !r.students115) {
+          setData({ ...r, students115: INIT.students115 })
+        } else {
+          setData(r || INIT)
+        }
+        // 讀取學年度設定
+        const db = await storageGet('worklog_115')
+        if (db?.currentYear) setCurrentYear(db.currentYear)
+      }
       catch { setData(INIT) }
     }
     load()
@@ -453,6 +503,7 @@ export default function Contacts() {
 
   const s113active = data.students113.filter(s=>!s.left).length
   const s114active = data.students114.filter(s=>!s.left).length
+  const s115active = (data.students115 || []).filter(s=>!s.left).length
 
   const ROW1 = [
     { id:'admin',   label:'行政窗口',       color:'#5a3a8a', count:`${data.admin.length} 人` },
@@ -463,6 +514,7 @@ export default function Contacts() {
     { id:'mentor',  label:'院學士導師',     color:'#b5451b', count:`${data.mentors.length} 人` },
     { id:'s113',    label:'113學生',        color:'#c47c1a', count:`在學 ${s113active} 人` },
     { id:'s114',    label:'114學生',        color:'#2e6b8a', count:`在學 ${s114active} 人` },
+    { id:'s115',    label:'115學生',        color:'#4a7c59', count:`在學 ${s115active} 人` },
     { id:'east',    label:'東亞學程委員',   color:'#8B5E3C', count:`${data.eastAsia.length} 人` },
     { id:'china',   label:'中國大陸委員',   color:'#4a7c59', count:`${data.china.length} 人` },
   ]
@@ -506,11 +558,14 @@ export default function Contacts() {
             onAdd={m=>updateList('mentors',[...data.mentors,m])}
             onRemove={id=>updateList('mentors',data.mentors.filter(m=>m.id!==id))} />}
           {open==='s113' && <StudentContent cohort="113"
-            students113={data.students113} students114={data.students114}
-            onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
+            students113={data.students113} students114={data.students114} students115={data.students115||[]}
+            currentYear={currentYear} onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
           {open==='s114' && <StudentContent cohort="114"
-            students113={data.students113} students114={data.students114}
-            onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
+            students113={data.students113} students114={data.students114} students115={data.students115||[]}
+            currentYear={currentYear} onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
+          {open==='s115' && <StudentContent cohort="115"
+            students113={data.students113} students114={data.students114} students115={data.students115||[]}
+            currentYear={currentYear} onMarkLeft={markLeft} onRestoreLeft={restoreLeft} />}
           {open==='east' && <CommitteeContent color="#8B5E3C" accent="#f5e8cc" members={data.eastAsia}
             onAdd={m=>updateList('eastAsia',[...data.eastAsia,m])}
             onRemove={id=>updateList('eastAsia',data.eastAsia.filter(m=>m.id!==id))} />}
