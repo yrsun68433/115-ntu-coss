@@ -273,6 +273,38 @@ const COHORT_114 = [
 ]
 
 
+const COHORT_115 = [
+  // 社工系
+  { id:'B14310007', name:'劉珈仔', dept:'社工系', grade:1, year:114, cohort:115 },
+  { id:'B14310046', name:'劉珈豪', dept:'社工系', grade:1, year:114, cohort:115 },
+  { id:'B13310055', name:'賴伯恩', dept:'社工系', grade:2, year:113, cohort:115 },
+  // 社會系
+  { id:'B14305008', name:'陳怡璇', dept:'社會系', grade:1, year:114, cohort:115 },
+  { id:'B14305009', name:'章翊琳', dept:'社會系', grade:1, year:114, cohort:115 },
+  { id:'B14305017', name:'辛家樂', dept:'社會系', grade:1, year:114, cohort:115 },
+  { id:'B14305019', name:'邱奕樺', dept:'社會系', grade:1, year:114, cohort:115 },
+  { id:'B14305037', name:'呂禹萱', dept:'社會系', grade:1, year:114, cohort:115 },
+  { id:'B13305049', name:'潘善彥', dept:'社會系', grade:2, year:113, cohort:115 },
+  // 政治系
+  { id:'B14302102', name:'劉千瑩', dept:'政治系政治理論組', grade:1, year:114, cohort:115 },
+  { id:'B13302118', name:'張芹榛', dept:'政治系政論組', grade:2, year:113, cohort:115 },
+  { id:'B14302202', name:'呂以寬', dept:'政治系國際關係組', grade:1, year:114, cohort:115 },
+  { id:'B14302268', name:'王智永', dept:'政治系國際關係組', grade:1, year:114, cohort:115 },
+  { id:'B13302254', name:'吳善宇', dept:'政治系國際關係組', grade:2, year:113, cohort:115 },
+  // 經濟系
+  { id:'B14303074', name:'董博安', dept:'經濟系', grade:1, year:114, cohort:115 },
+  { id:'B13303028', name:'陳鴻凱', dept:'經濟系', grade:2, year:113, cohort:115 },
+  { id:'B13303054', name:'邱薇臻', dept:'經濟系', grade:2, year:113, cohort:115 },
+  { id:'B13303133', name:'邱苡晨', dept:'經濟系', grade:2, year:113, cohort:115 },
+  // 外系所
+  { id:'B13104048', name:'陳宥瑄', dept:'哲學系外系所', grade:2, year:113, cohort:115 },
+  { id:'B12204033', name:'施卲', dept:'地質科學系外系所', grade:3, year:112, cohort:115 },
+  { id:'B14602031', name:'陳以恩', dept:'生物環境系統工程學系外系所', grade:1, year:114, cohort:115 },
+  { id:'B14602055', name:'游茗媛', dept:'生物環境系統工程學系外系所', grade:1, year:114, cohort:115 },
+  { id:'B14607017', name:'陳叡羲', dept:'農業經濟學系外系所', grade:1, year:114, cohort:115 },
+  { id:'B13610050', name:'趙予晨', dept:'生物產業傳播暨發展學系外系所', grade:2, year:113, cohort:115 },
+]
+
 const STATUS_OPTIONS = ['正常修習', '延修', '休學', '放棄', '畢業', '待確認']
 const STATUS_COLORS = { '正常修習':'#27ae60', '延修':'#c47c1a', '休學':'#8a3a5a', '放棄':'#b5451b', '畢業':'#2e6b8a', '待確認':'#888' }
 
@@ -1080,17 +1112,14 @@ export default function App() {
       {/* ════════════════ 修習狀態 ════════════════ */}
       {activeTab === 'status' && (() => {
         const COHORTS = [
-          { key:'113', data: COHORT_113, color:'#b5451b', accent:'#f0d5cc' },
-          { key:'114', data: COHORT_114, color:'#2e6b8a', accent:'#cce3ef' },
+          { key:'113', data: COHORT_113.map(s=>({...s,_cohort:'113'})), color:'#b5451b', accent:'#f0d5cc' },
+          { key:'114', data: COHORT_114.map(s=>({...s,_cohort:'114'})), color:'#2e6b8a', accent:'#cce3ef' },
+          { key:'115', data: COHORT_115.map(s=>({...s,_cohort:'115'})), color:'#4a7c59', accent:'#d3ebe1' },
         ]
-        // 計算各屆目前年級
-        function calcGrade(entryYear, grade0) {
-          return grade0 + (currentYear - (entryYear + grade0 - 1))
-        }
         // 各狀態統計
         const STATUS_OPTIONS = ['正常修習', '延修', '休學', '放棄', '畢業', '待確認']
         const STATUS_COLORS = { '正常修習':'#27ae60', '延修':'#c47c1a', '休學':'#8a3a5a', '放棄':'#b5451b', '畢業':'#2e6b8a', '待確認':'#888' }
-        const allStudents = [...COHORT_113, ...COHORT_114]
+        const allStudents = COHORTS.flatMap(c => c.data)
         const statusCount = {}
         STATUS_OPTIONS.forEach(o => { statusCount[o] = 0 })
         allStudents.forEach(s => {
@@ -1133,8 +1162,8 @@ export default function App() {
               ))}
             </div>
 
-            {/* ── 各屆並置兩欄 ── */}
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, alignItems:'start' }}>
+            {/* ── 各屆並置三欄 ── */}
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:16, alignItems:'start' }}>
               {COHORTS.map(({ key, data, color, accent }) => {
                 const active = data.filter(s => {
                   const st = statusData[`status-${s.id}`] !== undefined ? statusData[`status-${s.id}`] : (s.defaultStatus || '正常修習')
@@ -1189,7 +1218,8 @@ export default function App() {
                               try {
                                 const contacts = await storageGet('contacts_115')
                                 if (!contacts) return
-                                const cohortKey = s.year === 113 ? 'students113' : 'students114'
+                                const cohortKey = `students${s._cohort}`
+                                if (!contacts[cohortKey]) return
                                 const noteVal = next[noteKey] !== undefined ? next[noteKey] : (s.defaultNote || '')
                                 const updated = contacts[cohortKey].map(stu =>
                                   stu.id !== s.id ? stu :
