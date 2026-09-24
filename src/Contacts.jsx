@@ -465,9 +465,11 @@ export default function Contacts() {
     async function load() {
       try {
         const r = await storageGet(CONTACTS_KEY)
-        // 如果已有資料但沒有 students115，自動補上
+        // 如果已有資料但沒有 students115，自動補上並寫回 storage
         if (r && !r.students115) {
-          setData({ ...r, students115: INIT.students115 })
+          const migrated = { ...r, students115: INIT.students115 }
+          setData(migrated)
+          await storageSet(CONTACTS_KEY, migrated)
         } else {
           setData(r || INIT)
         }
