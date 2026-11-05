@@ -1127,6 +1127,13 @@ export default function App() {
           statusCount[st] = (statusCount[st] || 0) + 1
         })
         const totalActive = (statusCount['正常修習'] || 0) + (statusCount['延修'] || 0) + (statusCount['休學'] || 0)
+        // 放棄率：整體 & 不含最新一屆（剛入學，尚無流失時間）
+        const getSt = s => statusData[`status-${s.id}`] !== undefined ? statusData[`status-${s.id}`] : (s.defaultStatus || '正常修習')
+        const pct = (n, d) => d ? `${(n / d * 100).toFixed(1)}%` : '—'
+        const totalDrop = statusCount['放棄'] || 0
+        const newestKey = COHORTS[COHORTS.length - 1].key
+        const matured = COHORTS.filter(c => c.key !== newestKey).flatMap(c => c.data)
+        const maturedDrop = matured.filter(s => getSt(s) === '放棄').length
 
         return (
           <div style={{ flex:1, overflowY:'auto', padding:'20px 24px 60px' }}>
@@ -1153,6 +1160,14 @@ export default function App() {
                 <div style={{ fontSize:11, color:'#aaa', marginTop:6 }}>共 {allStudents.length} 人（含已離開）</div>
               </div>
 
+              {/* 放棄率 */}
+              <div style={{ background:'#fff', border:'1px solid #b5451b44', borderRadius:10, padding:'16px 20px', minWidth:150 }}>
+                <div style={{ fontSize:10, letterSpacing:'0.12em', color:'#b5451b', fontFamily:'monospace', marginBottom:6 }}>放棄率</div>
+                <div style={{ fontSize:28, fontWeight:'bold', fontFamily:'monospace', color:'#b5451b' }}>{pct(totalDrop, allStudents.length)}</div>
+                <div style={{ fontSize:11, color:'#aaa', marginTop:6 }}>{totalDrop}/{allStudents.length} 人</div>
+                <div style={{ fontSize:11, color:'#888', marginTop:2 }}>不含{newestKey}屆：{pct(maturedDrop, matured.length)}（{maturedDrop}/{matured.length}）</div>
+              </div>
+
               {/* 各狀態數字 */}
               {STATUS_OPTIONS.map(opt => (
                 <div key={opt} style={{ background:'#fff', border:`1px solid ${STATUS_COLORS[opt]}44`, borderRadius:10, padding:'14px 18px', minWidth:90 }}>
@@ -1169,12 +1184,18 @@ export default function App() {
                   const st = statusData[`status-${s.id}`] !== undefined ? statusData[`status-${s.id}`] : (s.defaultStatus || '正常修習')
                   return !['放棄','畢業'].includes(st)
                 }).length
+                const dropped = data.filter(s => getSt(s) === '放棄').length
                 return (
                   <div key={key} style={{ background:'#fff', borderRadius:10, border:`1px solid ${color}33`, overflow:'hidden' }}>
                     {/* 屆別標題 */}
                     <div style={{ background:color, padding:'12px 18px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
                       <div style={{ color:'#fff', fontWeight:'bold', fontSize:16 }}>{key}學年度入學</div>
                       <div style={{ color:'rgba(255,255,255,0.8)', fontSize:12, fontFamily:'monospace' }}>在籍 {active}/{data.length}</div>
+                    </div>
+                    {/* 本屆放棄率 */}
+                    <div style={{ background:accent, padding:'6px 18px', fontSize:12, fontFamily:'monospace', color:'#444', display:'flex', justifyContent:'space-between' }}>
+                      <span>放棄 {dropped} 人</span>
+                      <span style={{ fontWeight:'bold', color: dropped ? '#b5451b' : '#888' }}>放棄率 {pct(dropped, data.length)}</span>
                     </div>
                     {/* 表頭 */}
                     <div style={{ display:'grid', gridTemplateColumns:'64px 72px 1fr 90px', background:'#f5f2ee', padding:'6px 14px', gap:6, borderBottom:'1px solid #e8e5e0' }}>
